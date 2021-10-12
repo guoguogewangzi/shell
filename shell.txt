@@ -680,6 +680,8 @@ sdfgh
       -n ：顺便输出行号                                                         #常用
 
       -v ：反向选择，亦即显示出没有 '搜寻字符串' 内容的那一行！ 				#常用
+	  
+	  -w : 全词匹配（默认为模糊匹配）
 
       --color=auto ：可以将找到的关键词部分加上颜色的显示喔！
 	  
@@ -1299,6 +1301,32 @@ sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 s:表示替换模式
 g:表示全局替换
 -i:表示直接对文本文件进行操作的
+
+
+/bin/、/sbin/、/usr/bin、/usr/sbin/解释:
+
+0x01 /bin: 是系统的一些指令. 系统的必备:cat、cp、chmod df、dmesg、gzip、kill、ls、mkdir
+0x02 /usr/bin: 是你在后期安装的一些软件的运行脚本.应用软件工具的必备执行,c++、g++、gcc,wget
+0x03 /sbin: 一般是指超级用户指令.系统管理的必备程:fdisk、halt、ifconfig,shutdown
+0x04 /usr/sbin: 网路管理的必备:dhcpd、httpd、imap,samba，tcpdump，sshd
+
+file命令就可以：区分可执行elf文件还是shell脚本
+
+0x01 elf文件：
+[root@localhost sc]# file /bin/ls
+/bin/ls: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.32, BuildID[sha1]=aaf05615b6c91d3cbb076af81aeff531c5d7dfd9, stripped
+
+0x02 shell script文件
+[root@localhost sc]# file /etc/rc.d/rc.local
+/etc/rc.d/rc.local: Bourne-Again shell script, ASCII text executable
+[root@localhost sc]#
+
+隐藏历史命令
+当前shell终止history记录
+set +o history (命令会被记录到历史记录中)  
+
+结束隐藏命令记录
+set -o history (命令不会被记录到历史中) 
 
 
 结束！
