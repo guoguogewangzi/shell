@@ -1330,7 +1330,7 @@ set -o history (命令不会被记录到历史中)
 
 
 结束！
-
+------------------------------------------------------------------------------------------
 
 常见问题：
 1、在Linux中执行.sh脚本，报错：/bin/sh^M: bad interpreter:解决办法
@@ -1351,6 +1351,7 @@ vi xxx.sh
  
 #保存退出后再次执行sh文件即可
 
+------------------------------------------------------------------------------------------
 如何查看那些内网ip可用？
 
 1、先ping内网所有主机
@@ -1374,3 +1375,6 @@ cmd命令：arp -a
 ...
 
 3、复制结果到excel表中分列处理即可
+
+更多参考：
+https://mp.weixin.qq.com/s?__biz=MzA3NzE2MjgwMg==&mid=2448906104&idx=1&sn=28a7f930bfe6dceb9cbaf766cd88903a&chksm=8b55c725bc224e3367472da3f53c5cab8222ea6d911f4acfbc6b0b40f00d3ec22afb4e9b523c&mpshare=1&scene=23&srcid=1014GENHUbEBt7ebU5aStebQ&sharer_sharetime=1634183093071&sharer_shareid=7d1af5f0f75b32f1bf352f4b949752e4#rd
