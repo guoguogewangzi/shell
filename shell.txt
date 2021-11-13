@@ -779,12 +779,14 @@ halt:x:7:0:halt:/sbin:/sbin/halt
 
 
 双向重定向命令(即到文件又到屏幕):tee
+简介：tee命令用于读取标准输入的数据，并将其内容输出成文件。
 
 tee 会同时将数据流分送到文件去与屏幕 (screen)；而输出到屏幕的，其实就是 stdout ，可以让下个命令继续处理。
 命令：tee
 参数：tee -a file
 说明：-a  ：以累加 (append) 的方式，将数据加入 file 当中！
 
+#如：通过管道，作为 tee命令的输入，到last.list文件里
 例1：将 last 的输出存一份到 last.list 文件中，并且选取第一列显示出来
 [root@localhost tmp]# last |tee last.list |cut -d " " -f 1                 #结果记录到last.list 并输出到stdout,作为cut命令的stdin
 root
