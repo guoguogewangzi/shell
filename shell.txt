@@ -1300,7 +1300,7 @@ find命令
 2、-atime +n/-n　　
 
 显示带有文件名的所有文件及路径　　															
-3、fing / 文件名*　　　
+3、find / 文件名*　　　
 
 查找home下的txt文件（忽略大小写）　														
 4、find  /home -（i）name "*.txt"  
