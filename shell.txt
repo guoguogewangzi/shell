@@ -1576,3 +1576,77 @@ port = 3306
 EOF
 
 结束！
+---------------------------------------------------------------------------------------------------
+拼接符：'&&' 、'||'、';'(linux)、'&'(windows)
+
+
+1、'&&'符：
+0x01 window下：
+C:\Users\86188>ipconfig1&&whoami
+'ipconfig1' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+C:\Users\86188>
+
+0x02 linux下：
+[root@VM-0-10-centos ~]# ifconfig1&&whoami
+bash: ifconfig1: command not found
+[root@VM-0-10-centos ~]#
+
+总结：window和linux都是前一个命令执行成功后，才会执行&&后面的命令
+
+2、'||'符：
+0x01 window下：
+C:\Users\86188>whoami||ipconfig             #前一个命令执行成功，后面的不执行
+desktop-vls5h3g\86188
+
+C:\Users\86188>ipconfig1||whoami            #前一个命令执行失败，后面的执行
+'ipconfig1' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+desktop-vls5h3g\86188
+
+0x02 linux下：
+[root@VM-0-10-centos ~]# id||whoami      #前一个命令执行成功，后面的不执行
+uid=0(root) gid=0(root) groups=0(root)
+[root@VM-0-10-centos ~]# id1||whoami      #前一个命令执行失败，后面的执行
+bash: id1: command not found
+root
+[root@VM-0-10-centos ~]#
+
+总结：window和linux都是前一个命令执行失败后，才会执行||后面的命令
+
+3、';'符:
+0x01 windows下：无特殊含义
+C:\Users\86188>whoami;ipconfig               #';'符:可以看到window下;没有特殊含义，当成了错误参数
+错误: 无效参数/选项 - ';ipconfig'。
+键入 "WHOAMI /?" 以了解用法。
+
+
+0x02 linux下：命令分隔符
+[root@VM-0-10-centos ~]# id;whoami          #可以看到，当第一个执行成功时，后面的也执行
+uid=0(root) gid=0(root) groups=0(root)
+root
+[root@VM-0-10-centos ~]# id1;whoami        #可以看到，当第一个执行错误时，后面的也执行
+bash: id1: command not found
+root
+
+总结：window下无特殊含义，linux下启命令的分隔作用
+
+4、'&'符:
+0x01 window下:命令分隔符
+C:\Users\86188>whoami&whoami                  #'&'符:可以看到，当第一个执行成功时，后面的也执行
+desktop-vls5h3g\86188
+desktop-vls5h3g\86188
+
+C:\Users\86188>whoami1&whoami                 #'&'符可以看到，当第一个执行错误时，后面的也执行
+'whoami1' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+desktop-vls5h3g\86188
+
+0x02 linux下：
+代表后台运行
+
+总结：window下启命令的分隔作用，linux下代表后台运行
+---------------------------------------------------------------------------------------------------
+
+
