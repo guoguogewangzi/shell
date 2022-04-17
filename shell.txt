@@ -1414,7 +1414,7 @@ vi xxx.sh
 如何查看那些内网ip可用？
 
 1、先ping内网所有主机
-cmd命令：for /l %i in (1,1,255) do @ping 172.31.50.%i -w 1 -n 1|find /i "ttl="
+cmd命令：for /l %i in (1,1,255) do @ping 10.11.53.%i -w 1 -n 1|find /i "ttl="
 
 2、然后查看arp缓存表，即可看到已用的ip有哪些,便可知道哪些ip可用
 cmd命令：arp -a
@@ -1438,6 +1438,10 @@ cmd命令：arp -a
 更多参考：
 https://mp.weixin.qq.com/s?__biz=MzA3NzE2MjgwMg==&mid=2448906104&idx=1&sn=28a7f930bfe6dceb9cbaf766cd88903a&chksm=8b55c725bc224e3367472da3f53c5cab8222ea6d911f4acfbc6b0b40f00d3ec22afb4e9b523c&mpshare=1&scene=23&srcid=1014GENHUbEBt7ebU5aStebQ&sharer_sharetime=1634183093071&sharer_shareid=7d1af5f0f75b32f1bf352f4b949752e4#rd
 
+绑定路由：访问目标网段：10.10.33.0，绑定网关：10.11.53.1
+route add 10.10.33.0 mask 255.255.255.0 10.11.53.1 -p
+追踪路由
+tracert -d 10.10.33.224
 
 ------------------------------------------------------------------------------------------
 计划任务
@@ -1649,4 +1653,32 @@ desktop-vls5h3g\86188
 总结：window下启命令的分隔作用，linux下代表后台运行
 ---------------------------------------------------------------------------------------------------
 
+查看linux系统占用信息：
 
+（1）倒叙排列内存信息
+ps aux | head -1; ps aux | grep -v PID | sort -rn -k +4 
+
+详解：
+两段命令：
+第一段：ps aux | head -1          #为了显示开头第一行信息
+第二段：ps aux | grep -v PID | sort -rn -k +4   #进程排序信息
+
+-r: 以相反的顺序来排序(倒叙)
+-n:依照数值的大小排序
+-k +4:按指定的列进行排序
+
+（2）倒叙排列cpu信息
+ps aux | head -1; ps aux | grep -v PID | sort -rn -k +3 | head -10
+详解：
+两段命令：
+第一段：ps aux | head -1          #为了显示开头第一行信息
+第二段：ps aux | grep -v PID | sort -rn -k +3   #进程排序信息
+
+-r: 以相反的顺序来排序(倒叙)
+-n:依照数值的大小排序
+-k +3:按指定的列进行排序
+
+参考：
+https://www.cnblogs.com/djlsunshine/p/10833343.html
+
+---------------------------------------------------------------------------------------------------
