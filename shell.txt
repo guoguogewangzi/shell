@@ -220,6 +220,7 @@ i ha
 [root@localhost opt]# rpm -pql /root/jdk-8u161-linux-x64.rpm #通过查看jdk的信息可以知道jdk的安装目录在/usr/java
 [root@localhost opt]# vi /etc/profile #在文件的最后添加以下内容：
 export JAVA_HOME=/usr/java/jdk1.8.0_161
+#export JAVA_HOME=/usr/java/jdk-11.0.12        #可随时切换java版本
 export JAVA_BIN=/usr/java/jdk1.8.0_161/bin
 export PATH=${JAVA_HOME}/bin:$PATH
 export CLASSPATH=.:${JAVA_HOME}/lib/dt.jar:${JAVA_HOME}/lib/tools.jar
