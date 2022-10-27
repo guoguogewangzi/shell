@@ -1850,3 +1850,22 @@ windows控制台命令窗口中文乱码
 1.打开CMD.exe命令行窗口，默认情况下，编码为936（简体中文 GBK编码）
 2.通过chcp命令改变代码页，chcp 65001。(65001为UTF-8的代码页)
 3.命令行输入:chcp 65001
+
+windows
+
+创建用户名密码blue/blue
+net user blue blue /add
+
+查看用户
+net user
+
+将用户blue添加入管理组
+net localgroup administrators blue /add
+
+查看"administrators"组成员
+net localgroup administrators
+
+查看有哪些组
+net localgroup
+
+---------------------------------------------------------------------------------------------------
