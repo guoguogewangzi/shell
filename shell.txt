@@ -1423,6 +1423,96 @@ g:表示全局替换
 -i:表示直接对文本文件进行操作的
 
 
+tree命令：
+[root@VM-12-6-centos rc.d]# tree -afpCDg /etc/ |grep rc.d
+├── [lrwxrwxrwx root     Jan  8  2021]  /etc/init.d -> rc.d/init.d
+├── [lrwxrwxrwx root     Jan  8  2021]  /etc/rc0.d -> rc.d/rc0.d
+├── [lrwxrwxrwx root     Jan  8  2021]  /etc/rc1.d -> rc.d/rc1.d
+├── [lrwxrwxrwx root     Jan  8  2021]  /etc/rc2.d -> rc.d/rc2.d
+├── [lrwxrwxrwx root     Jan  8  2021]  /etc/rc3.d -> rc.d/rc3.d
+├── [lrwxrwxrwx root     Jan  8  2021]  /etc/rc4.d -> rc.d/rc4.d
+├── [lrwxrwxrwx root     Jan  8  2021]  /etc/rc5.d -> rc.d/rc5.d
+├── [lrwxrwxrwx root     Jan  8  2021]  /etc/rc6.d -> rc.d/rc6.d
+├── [drwxr-xr-x root     Mar 24 20:03]  /etc/rc.d
+│   ├── [drwxr-xr-x root     Mar  7 17:09]  /etc/rc.d/init.d
+│   │   ├── [-rw-r--r-- root     May 22  2020]  /etc/rc.d/init.d/functions
+│   │   ├── [-rwxr-xr-x root     Sep 23  2020]  /etc/rc.d/init.d/mst
+│   │   ├── [-rwxr-xr-x root     Sep 22 12:25]  /etc/rc.d/init.d/mysqld
+│   │   ├── [-rwxr-xr-x root     May 22  2020]  /etc/rc.d/init.d/netconsole
+│   │   ├── [-rwxr-xr-x root     May 22  2020]  /etc/rc.d/init.d/network
+│   │   ├── [-rwxr-xr-x root     Jan  8  2021]  /etc/rc.d/init.d/openibd
+│   │   ├── [-rwxr-xr-x root     Nov  5  2020]  /etc/rc.d/init.d/opensmd
+│   │   ├── [-r-xr-xr-x ossec    Jan 17  2022]  /etc/rc.d/init.d/ossec
+│   │   └── [-rw-r--r-- root     Nov 17  2020]  /etc/rc.d/init.d/README
+│   ├── [drwxr-xr-x root     Mar  7 17:09]  /etc/rc.d/rc0.d
+│   │   ├── [lrwxrwxrwx root     Mar  7 17:09]  /etc/rc.d/rc0.d/K15ossec -> ../init.d/ossec
+│   │   ├── [lrwxrwxrwx root     Sep 22 12:25]  /etc/rc.d/rc0.d/K36mysqld -> ../init.d/mysqld
+│   │   ├── [lrwxrwxrwx root     Mar  7  2019]  /etc/rc.d/rc0.d/K50netconsole -> ../init.d/netconsole
+│   │   ├── [lrwxrwxrwx root     Jan  8  2021]  /etc/rc.d/rc0.d/K85opensmd -> ../init.d/opensmd
+│   │   └── [lrwxrwxrwx root     Mar  7  2019]  /etc/rc.d/rc0.d/K90network -> ../init.d/network
+│   ├── [drwxr-xr-x root     Mar  7 17:09]  /etc/rc.d/rc1.d
+│   │   ├── [lrwxrwxrwx root     Mar  7 17:09]  /etc/rc.d/rc1.d/K15ossec -> ../init.d/ossec
+│   │   ├── [lrwxrwxrwx root     Sep 22 12:25]  /etc/rc.d/rc1.d/K36mysqld -> ../init.d/mysqld
+│   │   ├── [lrwxrwxrwx root     Mar  7  2019]  /etc/rc.d/rc1.d/K50netconsole -> ../init.d/netconsole
+│   │   ├── [lrwxrwxrwx root     Jan  8  2021]  /etc/rc.d/rc1.d/K85opensmd -> ../init.d/opensmd
+│   │   └── [lrwxrwxrwx root     Mar  7  2019]  /etc/rc.d/rc1.d/K90network -> ../init.d/network
+│   ├── [drwxr-xr-x root     Mar  7 17:09]  /etc/rc.d/rc2.d
+│   │   ├── [lrwxrwxrwx root     Mar  7  2019]  /etc/rc.d/rc2.d/K50netconsole -> ../init.d/netconsole
+│   │   ├── [lrwxrwxrwx root     Jan  8  2021]  /etc/rc.d/rc2.d/K85opensmd -> ../init.d/opensmd
+│   │   ├── [lrwxrwxrwx root     Mar  7  2019]  /etc/rc.d/rc2.d/S10network -> ../init.d/network
+│   │   ├── [lrwxrwxrwx root     Sep 22 12:25]  /etc/rc.d/rc2.d/S64mysqld -> ../init.d/mysqld
+│   │   └── [lrwxrwxrwx root     Mar  7 17:09]  /etc/rc.d/rc2.d/S99ossec -> ../init.d/ossec
+│   ├── [drwxr-xr-x root     Mar  7 17:09]  /etc/rc.d/rc3.d
+│   │   ├── [lrwxrwxrwx root     Mar  7  2019]  /etc/rc.d/rc3.d/K50netconsole -> ../init.d/netconsole
+│   │   ├── [lrwxrwxrwx root     Jan  8  2021]  /etc/rc.d/rc3.d/K85opensmd -> ../init.d/opensmd
+│   │   ├── [lrwxrwxrwx root     Mar  7  2019]  /etc/rc.d/rc3.d/S10network -> ../init.d/network
+│   │   ├── [lrwxrwxrwx root     Sep 22 12:25]  /etc/rc.d/rc3.d/S64mysqld -> ../init.d/mysqld
+│   │   └── [lrwxrwxrwx root     Mar  7 17:09]  /etc/rc.d/rc3.d/S99ossec -> ../init.d/ossec
+│   ├── [drwxr-xr-x root     Mar  7 17:09]  /etc/rc.d/rc4.d
+│   │   ├── [lrwxrwxrwx root     Mar  7  2019]  /etc/rc.d/rc4.d/K50netconsole -> ../init.d/netconsole
+│   │   ├── [lrwxrwxrwx root     Jan  8  2021]  /etc/rc.d/rc4.d/K85opensmd -> ../init.d/opensmd
+│   │   ├── [lrwxrwxrwx root     Mar  7  2019]  /etc/rc.d/rc4.d/S10network -> ../init.d/network
+│   │   ├── [lrwxrwxrwx root     Sep 22 12:25]  /etc/rc.d/rc4.d/S64mysqld -> ../init.d/mysqld
+│   │   └── [lrwxrwxrwx root     Mar  7 17:09]  /etc/rc.d/rc4.d/S99ossec -> ../init.d/ossec
+│   ├── [drwxr-xr-x root     Mar  7 17:09]  /etc/rc.d/rc5.d
+│   │   ├── [lrwxrwxrwx root     Mar  7  2019]  /etc/rc.d/rc5.d/K50netconsole -> ../init.d/netconsole
+│   │   ├── [lrwxrwxrwx root     Jan  8  2021]  /etc/rc.d/rc5.d/K85opensmd -> ../init.d/opensmd
+│   │   ├── [lrwxrwxrwx root     Mar  7  2019]  /etc/rc.d/rc5.d/S10network -> ../init.d/network
+│   │   ├── [lrwxrwxrwx root     Sep 22 12:25]  /etc/rc.d/rc5.d/S64mysqld -> ../init.d/mysqld
+│   │   └── [lrwxrwxrwx root     Mar  7 17:09]  /etc/rc.d/rc5.d/S99ossec -> ../init.d/ossec
+│   ├── [drwxr-xr-x root     Mar  7 17:09]  /etc/rc.d/rc6.d
+│   │   ├── [lrwxrwxrwx root     Mar  7 17:09]  /etc/rc.d/rc6.d/K15ossec -> ../init.d/ossec
+│   │   ├── [lrwxrwxrwx root     Sep 22 12:25]  /etc/rc.d/rc6.d/K36mysqld -> ../init.d/mysqld
+│   │   ├── [lrwxrwxrwx root     Mar  7  2019]  /etc/rc.d/rc6.d/K50netconsole -> ../init.d/netconsole
+│   │   ├── [lrwxrwxrwx root     Jan  8  2021]  /etc/rc.d/rc6.d/K85opensmd -> ../init.d/opensmd
+│   │   └── [lrwxrwxrwx root     Mar  7  2019]  /etc/rc.d/rc6.d/K90network -> ../init.d/network
+│   └── [-rwxr-xr-x root     Mar 24 20:03]  /etc/rc.d/rc.local
+├── [lrwxrwxrwx root     Jan  8  2021]  /etc/rc.local -> rc.d/rc.local
+[root@VM-12-6-centos rc.d]#
+
+
+
+解释：
+
+常规用法:
+-a 显示所有文件和目录。
+-C 在文件和目录清单加上色彩，便于区分各种类型。
+-p 列出权限标示。
+
+
+
+显示详情：
+-f 在每个文件或目录之前，显示完整的相对路径名称。
+-u 列出文件或目录的拥有者名称，没有对应的名称时，则显示用户识别码。
+-g 列出文件或目录的所属群组名称，没有对应的名称时，则显示群组识别码。
+-D 列出文件或目录的更改时间
+-s 列出文件或目录大小。
+
+
+扩展：
+-d 显示目录名称而非内容。
+-i 不以阶梯状列出文件或目录名称。
+-----------------------------------------------------------------------------------------------------------------------------------------
 /bin/、/sbin/、/usr/bin、/usr/sbin/解释:
 
 0x01 /bin: 是系统的一些指令. 系统的必备:cat、cp、chmod df、dmesg、gzip、kill、ls、mkdir
