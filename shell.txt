@@ -1973,3 +1973,20 @@ net localgroup administrators
 net localgroup
 
 ---------------------------------------------------------------------------------------------------
+xargs命令:
+Linux/Unix系统中常用于从标准输入中读取数据，并将这些数据作为参数传递给其他命令进行处理。以下是一些xargs命令的使用例子：
+例子1：
+echo "apple banana cherry" | xargs echo "Fruits:"
+
+这会输出：Fruits: apple banana cherry
+
+例子2：
+cat file.txt | xargs grep "keyword"
+
+这会在file.txt中搜索包含关键字 "keyword" 的行。
+
+例子3：
+find . -name "*.txt" | xargs rm
+
+这会删除所有后缀为 .txt 的文件。
+---------------------------------------------------------------------------------------------------
