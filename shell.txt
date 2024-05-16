@@ -1990,8 +1990,17 @@ find . -name "*.txt" | xargs rm
 
 这会删除所有后缀为 .txt 的文件。
 ---------------------------------------------------------------------------------------------------
-nmap全端口扫描：
+全端口扫描
 nmap -sS -v -T4 -Pn -p 0-65535 -oN FullTCP -iL ip.txt
+
+TCP探测主机存活
+nmap -sP -PS -v -T4 -oN HostAliveTCP 10.11.7.0/24
+nmap -sP -PS -v -T4 -oN HostAliveTCP -iL ip.txt
+
+ARP探测主机存活
+nmap -sP -PR -v -T4 -oN HostAliveARP 10.11.7.0/24
+nmap -sP -PR -v -T4 -oN HostAliveARP -iL ip.txt
+
 ------------------------------------------------------
 git命令三步走：
 增加：git add .
