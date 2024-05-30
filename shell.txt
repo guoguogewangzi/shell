@@ -1,4 +1,4 @@
-shell教程
+shell教程test
 
 
 1、!/bin/bash 作用：告诉脚本使用的是哪种命令解释器，如不指shell,已当前shell作为执行的shell
