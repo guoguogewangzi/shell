@@ -2027,3 +2027,5 @@ git命令三步走：
 提交：git commit -m "..."
 推送：git push
 ------------------------------------------------------
+go项目打包exe:
+go build -o main.exe main.go
