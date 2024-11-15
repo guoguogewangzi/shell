@@ -2029,3 +2029,38 @@ git命令三步走：
 ------------------------------------------------------
 go项目打包exe:
 go build -o main.exe main.go
+
+--------------------------------------------------------
+centos 启用nginx下载文件：
+安装：
+yum install nginx
+systemctl start nginx
+
+
+查看根目录：
+/etc/nginx/nginx.conf，例如：
+server {
+    listen 80;
+    server_name localhost;
+    root /usr/share/nginx/html;  # 这里定义了根目录路径
+    index index.html index.htm;
+}
+
+复制待被下载的文件
+cp /path/to/your/file /usr/share/nginx/html
+
+复制后：
+待被下载的路径：a.tar
+/usr/share/nginx/html/a.tar
+
+设置权限：
+确保文件和目录的权限允许Nginx访问：
+chmod -R 755 /usr/share/nginx/html
+chown -R nginx:nginx /usr/share/nginx/html
+
+浏览器访问下载：
+http://192.168.1.100/a.tar
+
+
+重启nginx服务：
+systemctl reload nginx
