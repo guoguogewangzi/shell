@@ -2073,3 +2073,11 @@ ss -tuln
 -u：显示 UDP 连接
 -l：显示监听中的端口
 -n：不解析主机名或端口名
+----------------------------------------
+速查日志技巧：
+1./var/下 或 /opt/下
+2.目录或文件名含有应用名称：比如dnsmasq.log、o2server、odoo或odoo.log
+3.日志文件以*.log结尾
+4.在目录名log/logs下，
+5.在/etc路径下/应用名称目录下/，查看*.conf配置文件，查看或配置日志路径
+6.日志被重定向至access.log -> /dev/stdout，查看方式：docker logs -f  容器器ID
