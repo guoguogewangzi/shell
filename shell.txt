@@ -2081,3 +2081,97 @@ ss -tuln
 4.在目录名log/logs下，
 5.在/etc路径下/应用名称目录下/，查看*.conf配置文件，查看或配置日志路径
 6.日志被重定向至access.log -> /dev/stdout，查看方式：docker logs -f  容器器ID
+
+-----------------------------------------
+ngxin 反向代理
+
+一、安装：
+yum install -y nginx
+
+启动：
+systemctl start nginx
+
+开机启动:
+systemctl enable nginx
+
+关闭防火墙：
+systemctl stop firewalld
+
+二、更改nginx端口：
+
+1）SELinux 配置
+如果 SELinux 启用，可能会阻止 Nginx 使用非标准端口（如 8081）。你可以通过以下命令暂时禁用 SELinux 或配置 SELinux 允许使用 8081 端口：
+
+查看 SELinux 状态：
+getenforce
+
+临时禁用 SELinux：
+setenforce 0
+
+如果需要永久允许 8081 端口：
+semanage port -a -t http_port_t -p tcp 8081
+
+2）修改配置文件ser
+vi /etc/nginx/nginx.conf 如下：
+server {
+        listen       8081;
+
+三、其他：
+1）web日志：/var/log/nginx/access.log
+
+2）快速访问
+http://192.168.xx.xx:8081/
+http://192.168.xx.xx:8081
+
+3）重新加载配置：
+nginx -s reload
+------------------------------------------------
+java 正则匹配
+方式一：jshell，进入交互shell
+
+import java.util.regex.*;
+
+String regex = "(?:JSON|JSONObject|JSONArray)\\.(?:parse|parseObject|parseArray)\\(\\s*(?![^\"']*\"[^\"]*\"(?:[^\"']*\"[^\"]*\")*)";
+
+String input = "Map<String, Object> data = JSON.parseObject(testData, Map.class);";
+
+Pattern pattern = Pattern.compile(regex);
+
+
+Matcher matcher = pattern.matcher(input);
+
+while(matcher.find()){
+
+System.out.println("匹配到的子串: " + matcher.group());
+
+}
+或
+方式二：编译执行
+RegexExample.java文件内容如下：
+----
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class RegexExample {
+    public static void main(String[] args) {
+        // 要匹配的正则表达式
+        String regex = "\\d+"; // 匹配一个或多个数字
+        // 输入的字符串
+        String input = "Java123Regex456";
+
+        // 编译正则表达式
+        Pattern pattern = Pattern.compile(regex);
+        // 创建匹配器对象
+        Matcher matcher = pattern.matcher(input);
+
+        // 检查是否匹配
+        while (matcher.find()) {
+            System.out.println("匹配到的子串: " + matcher.group());
+            System.out.println("起始位置: " + matcher.start());
+            System.out.println("结束位置: " + matcher.end());
+        }
+    }
+}
+----
+javac  -encoding UTF-8 RegexExample.java（编辑生成RegexExample.class）
+java RegexExample（执行RegexExample.class，此时不需要RegexExample.java）
