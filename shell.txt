@@ -2175,3 +2175,68 @@ public class RegexExample {
 ----
 javac  -encoding UTF-8 RegexExample.java（编辑生成RegexExample.class）
 java RegexExample（执行RegexExample.class，此时不需要RegexExample.java）
+
+----
+linux代理：
+1.解析订阅地址：
+wget -O proxy.txt "你的订阅地址"
+cat proxy.txt | base64 -d  # 如果是 Base64 编码
+
+得到类似这样的配置：
+hysteria2://6169de2e-30d2-410a-8d5b-dc17bce66e23@158.179.214.33:50000/?insecure=1&sni=fastcdn.hoyoverse.com&mport=50000-53000#%F0%9F%87%AA%F0%9F%87%B8%E8%A5%BF%E7%8F%AD%E7%89%99%E9%A9%AC%E5%BE%B7%E9%87%8C
+vless://6169de2e-30d2-410a-8d5b-dc17bce66e23@c8217-b2a.h2.49d2.jse11.1.b297.djjsvip.cfd:443?type=tcp&encryption=none&host=&path=&headerType=none&quicSecurity=none&serviceName=&security=reality&flow=xtls-rprx-vision&fp=chrome&sni=www.delamer.co.jp&pbk=tpxyz9wkFuetOl4-nf_fx4l3DaJwEk9Qnglpuo9B2n4&sid=8743f0c33aaf69fa#%F0%9F%87%AF%F0%9F%87%B5%E6%97%A5%E6%9C%AC%E4%B8%89%E7%BD%91%E4%BC%98%E5%8C%9601
+
+2.安装 Hysteria2
+wget https://github.com/apernet/hysteria/releases/latest/download/hysteria-linux-amd64 -O hysteria2
+chmod +x hysteria2
+sudo mv hysteria2 /usr/local/bin/
+
+3.创建配置文件 config.yaml
+[root@iZuf6j6msggv3ubssa78mlZ ~]# cat config.yaml
+server: 89.168.32.96:50000
+auth: 6169de2e-30d2-410a-8d5b-dc17bce66e23
+tls:
+  sni: www.microsoft.com
+  insecure: true
+transport:
+  udp:
+    mport: 50000-53000
+socks5:
+  listen: 127.0.0.1:1080
+http:
+  listen: 127.0.0.1:8080
+
+4.启动 Hysteria2 代理
+hysteria2 -c config.yaml
+
+如果一切正常，会看到类似输出：
+[INFO] SOCKS5 proxy listening at 127.0.0.1:1080
+[INFO] HTTP proxy listening at 127.0.0.1:8080
+
+
+5.测试代理：
+[root@iZuf6j6msggv3ubssa78mlZ ~]# curl -I  -x http://127.0.0.1:8080 https://www.google.com
+HTTP/1.1 200 OK
+....
+
+6.Docker 使用 Hysteria2 代理
+
+永久配置 Docker 代理
+sudo mkdir -p /etc/systemd/system/docker.service.d
+sudo nano /etc/systemd/system/docker.service.d/http-proxy.conf
+
+http-proxy.conf填入：
+[Service]
+Environment="HTTP_PROXY=http://127.0.0.1:8080"
+Environment="HTTPS_PROXY=http://127.0.0.1:8080"
+Environment="NO_PROXY=localhost,127.0.0.1"
+
+重启docker
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+
+测试：
+docker run -p 8002:8002 -it --rm qingzhaoli/vultrap:latest trapserver
+
+
+
